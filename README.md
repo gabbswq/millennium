@@ -14,6 +14,20 @@ Uma base pessoal de trabalho para desenvolver produtos em tarefas pequenas, com 
 
 ## Prioridade atual: laboratório Pix (develop)
 
+### Checkout e Vendedores
+
+Gabriel confirmou **Stripe Checkout** como fluxo principal e pediu para manter
+**Vendedores** em um menu independente. O app Next agora tem login, bloqueio por
+email pendente, pedidos e cadastro Connect/KYC hospedado pela Stripe. Sem
+configuracao, informa indisponibilidade e nao cria cobrancas ou contas.
+Leia a [SPEC de acesso](docs/STRIPE_AUTH_KYC_SPEC.md) e o
+[guia de homologacao](docs/STRIPE_CHECKOUT_SETUP.md).
+
+Em uma copia de develop: `npm ci --ignore-scripts`, depois `npm run dev`.
+Esse app exige backend Next e Supabase configurados; a landing no GitHub Pages
+nao hospeda suas APIs. Integracoes aceitam somente chaves de teste nesta etapa.
+Repasses/comissoes de vendedores, producao e hospedagem continuam pendentes.
+
 Gabriel escolheu priorizar pagamentos em sandbox. O incremento separado em
 [`payments-sandbox/`](payments-sandbox/) tem formulário, registros persistentes,
 QR, estados, eventos e conciliação. O modo padrão é um **simulador local sem
@@ -25,7 +39,9 @@ O destino pretendido é acesso online pelo celular, contas e banco de dados,
 seguido de pagamentos reais após validação e futuro aplicativo iOS. Local e
 sandbox não são limitações permanentes. A [SPEC de homologação online](docs/PAYMENTS_ONLINE_SPEC.md)
 separa esses marcos. A [base SQL de contas](payments-sandbox/database/README.md)
-está em desenvolvimento/testes; ainda não há login ou banco conectado ao painel.
+está em desenvolvimento/testes; o painel Pix JSON continua sem login/banco
+multiusuario. O novo app Stripe tem seu proprio fluxo de autenticacao e schema,
+ainda sem homologacao em contas externas.
 
 Na raiz da cópia de desenvolvimento, em Ubuntu/WSL:
 

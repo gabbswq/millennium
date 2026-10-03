@@ -2,7 +2,7 @@
 
 import useSWR from 'swr'
 import { createClient } from '@/lib/supabase/client'
-import type { ArticleSummary, PaginatedArticles } from '@/types/content'
+import type { PaginatedArticles } from '@/types/content'
 
 export const PAGE_SIZE = 9
 
@@ -35,7 +35,10 @@ async function fetchArticles({ page, tagSlug }: FetchOptions): Promise<Paginated
   const total = count ?? 0
 
   return {
-    articles:   (data ?? []) as ArticleSummary[],
+    articles: (data ?? []).map(row => ({ ...row, author_name: row.author_name ?? undefined,
+      tags: Array.isArray(row.tags) ? row.tags.flatMap(tag =>
+        tag && typeof tag === 'object' && !Array.isArray(tag) && typeof tag.id === 'string' && typeof tag.name === 'string' && typeof tag.slug === 'string'
+          ? [{ id: tag.id, name: tag.name, slug: tag.slug }] : []) : [] })),
     total,
     page,
     pageSize:   PAGE_SIZE,

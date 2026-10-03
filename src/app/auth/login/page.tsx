@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { loginSchema, mapAuthError, type LoginValues } from '@/types/auth'
 import { useAuth } from '@/hooks/useAuth'
+import { PaymentShell } from '@/components/payments/shell'
 
 import { Button }   from '@/components/ui/button'
 import { Input }    from '@/components/ui/input'
@@ -58,6 +59,7 @@ function LoginPageContent() {
 
   const [serverError, setServerError] = useState<string | null>(null)
   const [oauthLoading, setOauthLoading] = useState(false)
+  const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
   // Pre-fill email when redirected from signup with ?hint=exists
   const hintEmail = params.get('email') ?? ''
@@ -76,6 +78,7 @@ function LoginPageContent() {
       return
     }
     router.replace('/dashboard')
+    router.refresh()
   }
 
   async function handleGoogleSignIn() {
@@ -89,10 +92,10 @@ function LoginPageContent() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
+    <PaymentShell><main className="payment-access">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Entrar</CardTitle>
+          <CardTitle>Entrar no Millennium</CardTitle>
           <CardDescription>
             {hintExists
               ? `Este email já está cadastrado. Faça login para continuar.`
@@ -101,12 +104,13 @@ function LoginPageContent() {
         </CardHeader>
 
         <CardContent className="space-y-4">
+          {!configured && <p className="payment-notice" role="status">Autenticacao ainda nao configurada neste ambiente.</p>}
           {/* OAuth */}
           <Button
             variant="outline"
             className="w-full"
             onClick={handleGoogleSignIn}
-            disabled={oauthLoading || form.formState.isSubmitting}
+            disabled={!configured || oauthLoading || form.formState.isSubmitting}
           >
             <GoogleIcon />
             {oauthLoading ? 'Redirecionando…' : 'Continuar com Google'}
@@ -154,7 +158,6 @@ function LoginPageContent() {
                       <Link
                         href="/auth/forgot"
                         className="text-xs text-muted-foreground underline"
-                        tabIndex={-1}
                       >
                         Esqueceu a senha?
                       </Link>
@@ -180,7 +183,7 @@ function LoginPageContent() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={form.formState.isSubmitting || oauthLoading}
+                disabled={!configured || form.formState.isSubmitting || oauthLoading}
               >
                 {form.formState.isSubmitting ? 'Entrando…' : 'Entrar'}
               </Button>
@@ -195,7 +198,7 @@ function LoginPageContent() {
           </p>
         </CardContent>
       </Card>
-    </main>
+    </main></PaymentShell>
   )
 }
 

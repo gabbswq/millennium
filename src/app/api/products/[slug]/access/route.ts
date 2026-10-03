@@ -4,9 +4,9 @@ import { checkProductAccess } from '@/lib/products'
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
-  const { id } = await params
+  const { slug: id } = await params
 
   const supabase = await createClient()
   const {

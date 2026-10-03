@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.next-e2e/
 out/
 dist/
 build/
@@ -16,3 +17,5 @@ __pycache__/
 payments-sandbox/dist/
 payments-sandbox/test-results/
 payments-sandbox/playwright-report/
+test-results/
+playwright-report/
