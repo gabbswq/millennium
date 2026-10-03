@@ -37,3 +37,35 @@ jobs:
       - run: npm --prefix payments-sandbox exec -- playwright install --with-deps chromium
       - run: npm run pix:verify
       - run: npm run test:millennium
+
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        postgres: [17, 18]
+    services:
+      postgres:
+        image: postgres:${{ matrix.postgres }}-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: millennium_ci_only
+          POSTGRES_DB: millennium_test_payments
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d millennium_test_payments"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: payments-sandbox/package-lock.json
+      - run: npm --prefix payments-sandbox ci --ignore-scripts
+      - run: npm --prefix payments-sandbox run test:database
+        env:
+          MILLENNIUM_TEST_DATABASE_URL: postgresql://postgres:millennium_ci_only@127.0.0.1:5432/millennium_test_payments

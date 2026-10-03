@@ -4,6 +4,12 @@ Incremento de aprendizagem separado da landing, do executor de agentes e do
 checkout Next/Stripe antigo. A tela usa uma API Fastify e armazenamento local
 persistente. Nao e um gateway pronto para producao.
 
+O destino pretendido e Millennium online, com contas, banco, futuro iOS e
+pagamentos reais apos validacao. Local e sandbox sao etapas diferentes: uma
+aplicacao hospedada tambem pode usar dinheiro ficticio. Veja a
+[SPEC online](../docs/PAYMENTS_ONLINE_SPEC.md) e a [base SQL](database/README.md).
+O schema esta preparado para testes; o painel ainda nao usa PostgreSQL ou login.
+
 ## Abrir agora no VS Code
 
 Na copia de desenvolvimento deste computador, use o terminal Ubuntu/WSL:

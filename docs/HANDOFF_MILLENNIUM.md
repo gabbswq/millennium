@@ -2,6 +2,29 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Direcao esclarecida: online, banco e futuro iOS
+
+Em 3 de outubro, Gabriel explicou que deseja Millennium online, com login,
+banco de dados, futuro app iOS e pagamentos reais apos testar com dinheiro
+ficticio. Local e sandbox sao etapas, nao um destino permanente. O tunnel
+proposto nao recebeu aprovacao; ele so seria uma ponte temporaria para ensaio
+local. Backend HTTPS hospedado dispensa essa ponte. Conta/provedor de
+hospedagem e teto de custo continuam pendentes de escolha humana.
+
+A continuidade fica em [PAYMENTS_ONLINE_SPEC.md](PAYMENTS_ONLINE_SPEC.md).
+`feature/payments-account-schema` prepara schema PostgreSQL isolado e testes
+de identidade/RLS, centavos, idempotencia, eventos imutaveis e rollback. Nao
+aplica em banco externo, nao instala servico PostgreSQL no computador e nao
+conecta o painel JSON ao banco. O bootstrap de identidade e apenas fixture,
+nao login real. Consulte [guia SQL](../payments-sandbox/database/README.md).
+
+Proximo passo de codigo: repositorio transacional com escopo de conta, sem
+reutilizar o estado global do laboratorio para usuarios online. Depois ligar
+identidade real, hospedagem e homologacao Asaas completa. Main, preview,
+landing e portfolio permanecem fora destes incrementos. A meta continua
+pendente enquanto login, acesso pelo celular e pagamentos externos nao forem
+comprovados.
+
 ## Continuidade: receptor de webhook isolado
 
 O receptor opcional de `feature/pix-webhook-receiver` compartilha os registros

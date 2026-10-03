@@ -21,6 +21,12 @@ dinheiro real e com QR não pagável**. O adaptador Asaas Sandbox tem testes de
 contrato, mas a homologação externa e o uso observado por Gabriel ainda estão
 pendentes. Não é um gateway em produção nem parte da landing pública.
 
+O destino pretendido é acesso online pelo celular, contas e banco de dados,
+seguido de pagamentos reais após validação e futuro aplicativo iOS. Local e
+sandbox não são limitações permanentes. A [SPEC de homologação online](docs/PAYMENTS_ONLINE_SPEC.md)
+separa esses marcos. A [base SQL de contas](payments-sandbox/database/README.md)
+está em desenvolvimento/testes; ainda não há login ou banco conectado ao painel.
+
 Na raiz da cópia de desenvolvimento, em Ubuntu/WSL:
 
 ```sh

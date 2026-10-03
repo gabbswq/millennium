@@ -4,6 +4,12 @@ SPEC de incremento, 3 de outubro de 2026. Gabriel priorizou pagamentos em
 sandbox; o painel de agentes foi adiado. Esta aplicacao de aprendizagem fica
 separada do executor de turnos, da landing e do experimento Next/Stripe.
 
+Gabriel esclareceu depois que o destino e um produto online, com contas,
+banco, futuro iOS e pagamentos reais apos validacao. Esta SPEC continua
+definindo o laboratorio inicial; a continuidade esta em
+[PAYMENTS_ONLINE_SPEC.md](PAYMENTS_ONLINE_SPEC.md). Nao confundir onde o sistema
+roda (local/web) com o ambiente financeiro (sandbox/producao).
+
 ## Resultado pretendido
 
 Abrir um laboratorio no computador, criar uma cobranca ficticia de um vendedor
