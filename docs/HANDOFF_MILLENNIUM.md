@@ -2,6 +2,41 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Checkout principal e menu Vendedores, 3 de outubro
+
+Gabriel confirmou Checkout e depois pediu explicitamente preservar Connect para
+vendedores em um menu separado. Nao remover esta frente. A feature atual
+stripe-auth-kyc implementa login, email confirmado, menus separados, Checkout
+de pagamento unico BRL, cadastro Connect hospedado e consulta de requirements.
+KYC nao bloqueia compradores por falta de cadastro vendedor. Repasses/comissoes
+nao foram implementados. Portfolio, landing e Pix ficam separados.
+
+Contrato e limites: [STRIPE_AUTH_KYC_SPEC.md](STRIPE_AUTH_KYC_SPEC.md).
+Setup e gates: [STRIPE_CHECKOUT_SETUP.md](STRIPE_CHECKOUT_SETUP.md).
+Migrations novas nao aplicadas na nuvem. Supabase existe segundo Gabriel,
+mas projeto/plano/Spend Cap/custo/host ainda precisam ser conferidos. Nenhuma
+chave lida ou persistida; SDKs usam ambiente, Stripe live e recusada, features
+desativadas por padrao. Codigo em main nao significara backend publicado.
+
+Validacao local: 30 testes de dominio/SDK, 15 SQL efemeros e 10 de navegador
+desktop/mobile com fixture Supabase separada e Stripe desativada. Lint, tipos,
+build e auditoria de dependencias de producao verificados. Provedor real, JWT
+real, concorrencia multiprocessos PostgreSQL, KYC e webhook externos continuam
+pendentes. npm audit completo ainda tem alertas em ferramentas de desenvolvimento;
+nao confundir auditoria omit=dev limpa com seguranca completa.
+
+Corrigido conflito legado entre api/products/[id]/access e [slug], sem alterar
+as URLs. Cliente Supabase SSR atualizado por incompatibilidade com o SDK;
+tags de artigos passam por mapeamento tipado. Checkout novo nao usa as Edge
+Functions legadas; nao implanta-las para este fluxo. Antes de banco externo,
+revisar a cadeia antiga, especialmente policies recursivas de public.users.
+
+Executor CLI: usar Ubuntu/WSL, conforme README. O ensaio nativo Windows teve
+29/32 testes aprovados (aceite e symlink falharam); nao anunciar suporte Windows
+completo nem refatorar o executor dentro desta feature de pagamentos.
+
+As secoes seguintes sao historico. Nao inferir estado atual apenas delas.
+
 ## Direcao esclarecida: online, banco e futuro iOS
 
 Em 3 de outubro, Gabriel explicou que deseja Millennium online, com login,

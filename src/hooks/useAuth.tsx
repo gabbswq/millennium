@@ -82,13 +82,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     //    refresh, sign-out from another tab, etc.).
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
 
       if (event === 'SIGNED_IN' && session) {
-        await syncOAuthProvider(session)
+        setTimeout(() => { void syncOAuthProvider(session) }, 0)
       }
     })
 

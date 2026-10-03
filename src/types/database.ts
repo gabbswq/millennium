@@ -1,3 +1,5 @@
+import type { StripeConnectionRow, CheckoutRow } from './stripe'
+
 export type Json =
   | string
   | number
@@ -9,6 +11,24 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      stripe_checkout_requests: {
+        Row: CheckoutRow
+        Insert: Partial<CheckoutRow>
+        Update: Partial<CheckoutRow>
+        Relationships: []
+      }
+      stripe_connected_accounts: {
+        Row: StripeConnectionRow
+        Insert: Partial<StripeConnectionRow> & Pick<StripeConnectionRow, 'user_id'>
+        Update: Partial<StripeConnectionRow>
+        Relationships: []
+      }
+      stripe_connect_events: {
+        Row: { id: string; stripe_account_id: string; fingerprint: string; event_created: number; received_at: string }
+        Insert: { id: string; stripe_account_id: string; fingerprint: string; event_created: number; received_at?: string }
+        Update: Record<string, never>
+        Relationships: []
+      }
       articles: {
         Row: {
           id: string
@@ -171,6 +191,18 @@ export interface Database {
       }
     }
     Functions: {
+      reserve_stripe_connection: { Args: { p_user_id: string }; Returns: StripeConnectionRow[] }
+      claim_stripe_connection: { Args: { p_user_id: string }; Returns: StripeConnectionRow[] }
+      reserve_stripe_checkout: { Args: { p_user_id: string; p_price_id: string; p_request_id: string }; Returns: CheckoutRow[] }
+      claim_stripe_checkout: { Args: { p_user_id: string; p_id: string }; Returns: CheckoutRow[] }
+      record_stripe_checkout_event: {
+        Args: { p_event_id: string; p_fingerprint: string; p_checkout_id: string; p_user_id: string; p_session_id: string; p_amount: number; p_currency: string; p_state: string }
+        Returns: boolean
+      }
+      record_stripe_connect_event: {
+        Args: { p_event_id: string; p_account_id: string; p_fingerprint: string; p_created: number }
+        Returns: boolean
+      }
       can_access_product: {
         Args: { p_product_id: string }
         Returns: boolean

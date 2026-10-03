@@ -6,6 +6,11 @@ validacao. Local e sandbox sao etapas, nao o destino permanente do produto.
 O executor de fabrica de software continua preservado; pagamentos sao a
 prioridade desta trilha, sem reescrever portfolio ou landing neste incremento.
 
+Atualizacao: Gabriel confirmou Checkout e preservacao de vendedores num menu
+separado. A trilha Next/Supabase/Stripe esta detalhada em
+[STRIPE_AUTH_KYC_SPEC.md](STRIPE_AUTH_KYC_SPEC.md). O laboratorio Asaas abaixo
+permanece independente, sem conversao de seus dados em pedidos Stripe.
+
 ## Resultado pretendido
 
 Gabriel acessa pelo celular uma URL HTTPS do Millennium, faz login, cria uma

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     default: 'Millennium',
     template: '%s | Millennium',
   },
-  description: 'Automação com IA para negócios.',
+  description: 'Millennium. Pagamentos e operacao.',
 }
 
 export default function RootLayout({
