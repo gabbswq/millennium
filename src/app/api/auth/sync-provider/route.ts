@@ -23,6 +23,7 @@ function getBearerToken(request: NextRequest) {
 }
 
 async function syncProvider(request: NextRequest) {
+  requestBudget.take('provider-sync-ingress', 30)
   const token = getBearerToken(request)
 
   if (!token) {

@@ -46,7 +46,8 @@ export class RequestBudget {
     for (const [id, bucket] of this.buckets) if (bucket.until <= now) this.buckets.delete(id)
     const bucket = this.buckets.get(key) ?? { used: 0, until: now + this.window }
     if (bucket.used >= limit || !this.buckets.has(key) && this.buckets.size >= this.maximum) {
-      throw new OnboardingError(429, 'Muitas solicitacoes. Aguarde um minuto.')
+      const until = bucket.used >= limit ? bucket.until : Math.min(...Array.from(this.buckets.values(), value => value.until))
+      throw new OnboardingError(429, 'Muitas solicitacoes. Tente novamente mais tarde.', Math.max(1, Math.ceil((until - now) / 1000)))
     }
     bucket.used++
     this.buckets.set(key, bucket)

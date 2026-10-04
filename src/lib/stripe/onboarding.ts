@@ -18,7 +18,7 @@ export interface OnboardingProvider {
   link(accountId: string): Promise<string>
 }
 export class OnboardingError extends Error {
-  constructor(public status: number, message: string) { super(message) }
+  constructor(public status: number, message: string, public retryAfterSeconds?: number) { super(message) }
 }
 
 export async function beginOnboarding(store: ConnectionStore, provider: OnboardingProvider): Promise<string> {
