@@ -2,7 +2,7 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
-## CAPTCHA de Auth, 3 de outubro
+## CAPTCHA de Auth, 4 de outubro
 
 Feature auth-captcha parte de develop 0daa804f. Formularios enviam token
 Turnstile nativo ao Supabase no login com senha, cadastro, recuperacao e
@@ -15,8 +15,17 @@ recusado nao mostra sucesso. OAuth nao usa o CAPTCHA deste formulario.
 Local: lint, tipos, 57 casos dominio/auth e 12 novos casos de navegador
 desktop/mobile passaram. Layout inspecionado em 320 px e desktop, inclusive
 foco de teclado. Fixtures loopback 4315/4316 e SDK interceptado apenas nos
-testes; nenhum token Cloudflare real validado. CI e integracao develop ainda
-pendentes neste registro. Suite anterior de navegador permanece obrigatoria.
+testes; nenhum token Cloudflare real validado.
+
+Codigo a1376975deab2d7e456d6d664b47f53d5ffa175a aprovado no
+[CI da feature](https://github.com/gabbswq/millennium/actions/runs/37171747778):
+57 dominio/auth, 36 SQL nativos por versao (17/18, zero SKIP), 12 navegador
+anteriores e 12 CAPTCHA. Sao 117 casos unicos; nao somar repeticoes da matriz
+ou PGlite (30 aprovados, seis SKIP explicitos). Lint, tipos via build e auditoria
+omit=dev passaram; zero alertas conhecidos em dependencias de producao nao
+certifica ferramentas dev ou seguranca absoluta. Pix/executor passaram no
+codigo anterior 1ef5b5f9; ajuste seguinte mudou somente os testes CAPTCHA.
+Integrar apenas develop, conforme governanca; nao promover preview/main.
 
 Enforcement precisa ser ativado separadamente no Supabase; guard de cliente
 nao protege API direta. Nenhum CAPTCHA/limite remoto foi configurado, nem

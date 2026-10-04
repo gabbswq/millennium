@@ -70,6 +70,12 @@ test-results/auth-captcha, ignorados pelo Git. Esses testes comprovam o
 contrato do app, nao validacao real do Cloudflare/Supabase nem resistencia
 a ataque externo. Confirmar esses gates antes de anunciar protecao online.
 
+Codigo a1376975 aprovado no
+[CI](https://github.com/gabbswq/millennium/actions/runs/37171747778):
+57 dominio/auth, 36 SQL nativos em PostgreSQL 17/18 (zero SKIP) e 24 navegador
+(12 anteriores e 12 CAPTCHA). Sao 117 casos unicos, alem de lint/build e
+audit omit=dev sem alertas conhecidos. Nao e homologacao externa.
+
 Referencias primarias:
 [CAPTCHA no Supabase](https://supabase.com/docs/guides/auth/auth-captcha),
 [configuracao do widget](https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/widget-configurations/),
