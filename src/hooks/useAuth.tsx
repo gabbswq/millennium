@@ -29,7 +29,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 // ---------------------------------------------------------------------------
-// Helper — sync OAuth provider record via Edge Function.
+// Helper — sync the verified OAuth identity through our server route.
 // Runs after a social SIGNED_IN event so we can persist the auth_providers
 // row using service_role without leaking that key to the browser.
 // ---------------------------------------------------------------------------
@@ -44,13 +44,7 @@ async function syncOAuthProvider(session: Session): Promise<void> {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({
-        provider,
-        // `sub` from the provider's token; fall back to Supabase user id.
-        provider_user_id:
-          session.user.user_metadata?.sub ?? session.user.id,
-        provider_data: session.user.user_metadata ?? {},
-      }),
+      body: JSON.stringify({ provider }),
     })
   } catch {
     // Non-fatal. The public.users row already exists (created by DB trigger).

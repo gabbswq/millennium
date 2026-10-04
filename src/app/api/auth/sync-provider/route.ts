@@ -2,12 +2,14 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { providerRecord } from '@/lib/auth/provider'
+import { boundedBody, apiError } from '@/lib/stripe/http'
+import { requestBudget } from '@/lib/stripe/guards'
+import { OnboardingError } from '@/lib/stripe/onboarding'
 
 const syncProviderSchema = z.object({
   provider: z.string().trim().min(1).max(64).refine((value) => value !== 'email'),
-  provider_user_id: z.string().trim().min(1).max(255),
-  provider_data: z.record(z.unknown()).optional().default({}),
-})
+}).strict()
 
 function getBearerToken(request: NextRequest) {
   const authorization = request.headers.get('authorization')
@@ -20,7 +22,7 @@ function getBearerToken(request: NextRequest) {
   return token
 }
 
-export async function POST(request: NextRequest) {
+async function syncProvider(request: NextRequest) {
   const token = getBearerToken(request)
 
   if (!token) {
@@ -30,11 +32,13 @@ export async function POST(request: NextRequest) {
   let payload: z.infer<typeof syncProviderSchema>
 
   try {
-    payload = syncProviderSchema.parse(await request.json())
-  } catch {
+    payload = syncProviderSchema.parse(JSON.parse(await boundedBody(request, 1024)))
+  } catch (error) {
+    if (error instanceof OnboardingError) throw error
     return NextResponse.json({ error: 'Invalid provider payload.' }, { status: 400 })
   }
 
+  requestBudget.take('provider-sync-authentication', 30)
   const supabase = await createClient()
   const {
     data: { user },
@@ -45,26 +49,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid bearer token.' }, { status: 401 })
   }
 
-  const tokenProvider = user.app_metadata?.provider
-  if (tokenProvider && tokenProvider !== payload.provider) {
-    return NextResponse.json({ error: 'Provider does not match authenticated user.' }, { status: 403 })
-  }
-
-  const verifiedProviderUserId =
-    typeof user.user_metadata?.sub === 'string' ? user.user_metadata.sub : user.id
-
-  if (payload.provider_user_id !== verifiedProviderUserId) {
-    return NextResponse.json({ error: 'Provider user does not match authenticated user.' }, { status: 403 })
-  }
+  const record = providerRecord(user, payload.provider)
+  if (!record) return NextResponse.json({ error: 'Verified provider identity required.' }, { status: 403 })
+  requestBudget.take(`provider-sync:${user.id}`, 3)
 
   const admin = createAdminClient()
   const { error } = await admin.from('auth_providers').upsert(
-    {
-      user_id: user.id,
-      provider: payload.provider,
-      provider_user_id: verifiedProviderUserId,
-      provider_data: payload.provider_data,
-    },
+    record,
     { onConflict: 'provider,provider_user_id' },
   )
 
@@ -72,11 +63,19 @@ export async function POST(request: NextRequest) {
     console.error('[auth/sync-provider] Failed to sync provider.', {
       user_id: user.id,
       provider: payload.provider,
-      error: error.message,
+      code: error.code,
     })
 
     return NextResponse.json({ error: 'Failed to sync provider.' }, { status: 500 })
   }
 
   return NextResponse.json({ ok: true })
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const response = await syncProvider(request)
+    response.headers.set('Cache-Control', 'private, no-store')
+    return response
+  } catch (error) { return apiError(error) }
 }

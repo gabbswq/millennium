@@ -61,3 +61,15 @@ test('verified fixture identity still cannot bypass disabled Stripe integration'
   expect(result.status).toBe(503)
   expect(result.body.url).toBeUndefined()
 })
+
+test('OAuth sync refuses client identity claims and oversized bodies before touching providers', async ({ request }) => {
+  const missing = await request.post('/api/auth/sync-provider', { data: { provider: 'google' } })
+  expect(missing.status()).toBe(401)
+  const forged = await request.post('/api/auth/sync-provider', { headers: { Authorization: 'Bearer fixture-not-authenticated' },
+    data: { provider: 'google', provider_user_id: 'forged', provider_data: { role: 'admin' } } })
+  expect(forged.status()).toBe(400)
+  const oversized = await request.post('/api/auth/sync-provider', { headers: { Authorization: 'Bearer fixture-not-authenticated' },
+    data: { provider: 'g'.repeat(1500) } })
+  expect(oversized.status()).toBe(413)
+  expect(oversized.headers()['cache-control']).toContain('no-store')
+})

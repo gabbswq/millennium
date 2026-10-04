@@ -41,6 +41,23 @@ Novas migrations, nesta ordem:
 
 1. 20261003000000_stripe_connect_access.sql
 2. 20261003000001_stripe_checkout_access.sql
+3. 20261003000002_auth_access_hardening.sql
+
+A terceira corrige a recursao das policies de public.users, limita PATCH do
+perfil a display_name/avatar_url/metadata e reserva identidade/email/role ao
+servidor. Metadata continua editavel e nunca deve autorizar acesso. Vinculos
+OAuth passam a ser gravados exclusivamente pelo servidor usando identities
+retornadas por auth.getUser(token), nao user_metadata ou IDs enviados pelo
+browser. Novas chamadas sync-provider enviam somente provider, com corpo de
+ate 1 KiB e backpressure local; nao usar clientes antigos para essa rota.
+
+Perfis/authors sao views invoker privadas: dono/admin, sem diretorio anonimo.
+Jobs de publicacao/refresh sao service_role-only com EXECUTE explicito;
+BYPASSRLS nao dispensa esse privilegio. Precos continuam publicamente legiveis
+quando ativos, mas so administradores confiaveis podem altera-los. O cliente
+nao recebe o raw_event de pagamentos legados. Conferir grants de coluna e
+dono das funcoes no banco escolhido; os testes usam um dono privilegiado
+descartavel, nao certificam automaticamente a configuracao de qualquer projeto.
 
 Um administrador cria um Product/Price de teste na Stripe e sincroniza no
 catalogo local aprovado: ativo, pagamento unico, brl, de 1 a 1000000 centavos.
@@ -94,8 +111,28 @@ Windows com Edge instalado: definir MILLENNIUM_TEST_BROWSER_CHANNEL=msedge no
 processo do terminal permite rodar a suite sem baixar Chromium. A suite usa
 portas loopback 4313 e 4314 e Stripe desativada. Sessao ficticia valida apenas
 o fluxo do app; nao prova autenticacao JWT real ou cadastro/pagamento na Stripe.
-SQL usa PGlite efemero, nunca a conta Supabase do usuario. Artefatos ficam em
-test-results, ignorados pelo Git. CI executa testes sem credenciais externas.
+SQL local usa PGlite efemero com a cadeia inteira de migrations, incluindo
+unaccent e defaults historicos permissivos. Reproduz a recursao anterior antes
+de aplicar a correcao. CI repete a suite em PostgreSQL 17 e 18 e adiciona cinco
+ensaios multiconexao: reservas/claims de Checkout e vendedor, webhook duplicado
+e limites globais de 100 Checkouts/25 cadastros por dia sob concorrencia.
+Localmente esses cinco ensaios ficam explicitamente SKIP sem PostgreSQL nativo.
+
+Para o ensaio nativo, MILLENNIUM_TEST_DATABASE_URL aceita somente uma base
+loopback vazia com nome millennium_test_*. Recusa URL remota, query/hash,
+objetos existentes ou roles Supabase ja existentes, antes de alterar schema.
+Nunca apontar para uma conta Supabase, base pessoal, producao ou staging.
+Artefatos ficam em test-results, ignorados pelo Git. CI usa apenas fixtures
+descartaveis, sem credenciais externas e sem pagamentos.
+
+Limites SQL restringem criacoes de recursos, nao requisicoes recusadas,
+trafego ou fatura. Backpressure em memoria vale por processo e nao substitui
+WAF, controles de custo do provedor ou teste de abuso externo. npm audit
+omit=dev limpo nao inclui os alertas ainda existentes em ferramentas dev.
+
+Referencias: [RLS e grants](https://supabase.com/docs/guides/database/postgres/row-level-security),
+[metadata editavel](https://supabase.com/docs/guides/auth/users),
+[contrato JSON de identidade do GoTrue](https://github.com/supabase/auth/blob/master/internal/models/identity.go).
 
 ## Operacao futura
 
