@@ -12,6 +12,16 @@ PATCH usa compare-and-set de estado/timestamp e nunca marca paid. SDKs tem
 timeout de 10s e retries desativados; saida sem URLs/PII/credenciais.
 [Runbook](CHECKOUT_RECOVERY.md). Nenhuma dependencia, migration ou UI nova.
 
+Codigo 0c95c3fc0e89bc22d0f8e1f5768bce65af9f7ea1 aprovado no
+[CI da feature](https://github.com/gabbswq/millennium/actions/runs/37169220199):
+51 dominio/auth, 36 SQL nativos por versao (17/18, zero SKIP) e 12 navegador.
+Sao 99 casos unicos, nao somar repeticoes da matriz. Inclui seis ensaios
+multiconexao e perda de resposta apos PATCH ja commitado. Lint, tipos, build
+e auditoria omit=dev passaram; esta ultima retornou zero alertas conhecidos,
+mas nao certifica ferramentas dev nem toda a seguranca do produto. Pix e
+executor tambem passaram no CI da mesma branch. Local PGlite: 30/36, seis
+SKIP nativos explicitos; CLI real --help/input invalido sem credenciais testada.
+
 Nao executar na nuvem sem autorizacao de operacao. Nenhuma credencial lida,
 .env editado ou escrita externa realizada neste incremento. Sessao terminal
 sem vinculo exige revisao/fluxo transacional separado, nao inventar URL ou
