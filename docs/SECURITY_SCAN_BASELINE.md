@@ -1,0 +1,64 @@
+# Baseline de seguranca: 2026-10-04
+
+Codigo: 216f0357, feature/security-api-bounds, base develop e9387f3c.
+Esta e uma primeira triagem por leitura, nao um pentest nem aceite de risco
+em producao. Os alertas continuam abertos; nenhum foi suprimido/dispensado.
+
+## Evidencia automatica
+
+[CI de pagamentos](https://github.com/gabbswq/millennium/actions/runs/37214121308)
+aprovado no lockfile final, Node 22:
+
+- 67 casos de dominio/auth, dez novos, zero SKIP.
+- 40 casos SQL nativos em PostgreSQL 17 e 18, zero SKIP por versao.
+- 12 casos de navegador e 12 de CAPTCHA, desktop/mobile.
+- Lint, build/tipos e npm audit --omit=dev: zero vulnerabilidades conhecidas.
+- PGlite: 34/40, seis SKIP de concorrencia; nao somar a matriz novamente.
+
+Total: 131 casos unicos. Isto nao prova Auth/JWT/Stripe reais nem um sistema
+hospedado sem falhas. Auditoria completa local: 35 -> 7 entradas high de
+ferramentas dev/transitivas; exit 1, nao aprovada. Ver [programa](SECURITY_PROGRAM.md).
+
+[Primeira analise CodeQL](https://github.com/gabbswq/millennium/actions/runs/37214121334)
+JS/TS security-extended executada e upload concluido. API code-scanning/alerts
+consultada explicitamente com ref=refs/heads/feature/security-api-bounds:
+11 abertos, 10 high e 1 medium segundo a ferramenta. Sucesso do workflow nao
+e ausencia de alertas nem bloqueio automatico de merge.
+
+## Triagem inicial
+
+P1 = antes de publicar a superficie afetada; P2 = proximo incremento local;
+P3 = higiene/fixture com baixa exposicao atual. Essas prioridades sao do projeto;
+nao alteram as severidades originais e nao comprovam exploracao remota.
+
+| Alerta / regra CodeQL | Local | Leitura e proxima acao | Prioridade |
+| --- | --- | --- | --- |
+| 1 / js/xss-through-dom (high) | index.html:1660 | Busca interpola texto do DOM em innerHTML. Titulos/categorias atuais sao locais; nao foi provada entrada remota. Trocar por criacao DOM/textContent e testar titulos com markup sem execucao, preservando visual. | P1 se abrir conteudo dinamico, P2 agora |
+| 3 / js/missing-rate-limiting (high) | payments-sandbox/app.mjs:42 | Hook tem origem local/CSRF, mas sem limite de ingresso. Nao expor este laboratorio; testar limiter antes de I/O do provedor. | P1 antes de exposicao |
+| 4 / js/missing-rate-limiting (high) | payments-sandbox/app.mjs:57 | Leitura sincrona de assets sem rate limit. Loopback reduz exposicao, nao substitui controle de recursos. Rever cache/leitura e backpressure, sem benchmark remoto. | P2 |
+| 6 / js/file-system-race (high) | payments-sandbox/repository.mjs:30 | lstat/exists seguido de read permite troca entre verificacao e uso. Pasta privada e locks nao demonstram ausencia de corrida. Ler por descriptor/no-follow e testar troca de symlink em fixture. | P2 |
+| 7 / js/file-system-race (high) | payments-sandbox/repository.mjs:69 | Recuperacao de lock faz verificacao antes de read. Rever descriptor/identidade e concorrencia, preservando recovery gate. | P2 |
+| 8 / js/file-system-race (high) | payments-sandbox/repository.mjs:99 | close verifica link antes de read/unlink. Rever corrida e identidade do lock sem apagar dados existentes. | P2 |
+| 9 / js/file-system-race (high) | scripts/millennium/project.mjs:60 | fingerprint verifica lstat antes de read. Pode seguir arquivo trocado por symlink. Limitar leitura por descriptor com regressao; nao usar repositorio hostil como confiavel. | P2 |
+| 10 / js/file-system-race (high) | scripts/millennium/store.mjs:48 | Registro JSON verificacao/uso separado. Validar descriptor e identidade antes de consumir estado. | P2 |
+| 11 / js/file-system-race (high) | scripts/millennium/runner.mjs:162 | Fallback de resposta usa exists + write sem wx; agente controla workspace. Preferir criacao exclusiva e teste com symlink/arquivo concorrente. | P2 |
+| 5 / js/file-system-race (high) | landing/scripts/check-bundle.mjs:8 | stat e read independentes podem medir versoes diferentes de artifact. Nao ha decisao de privilegio pelo stat nesse trecho. Calcular tamanho do mesmo buffer; revisar resultado antes de classificar falso positivo. | P3 |
+| 2 / js/bad-code-sanitization (medium) | scripts/millennium/tests/fake-provider.mjs:13 | JSON.stringify de caminho dentro de codigo Node -e; somente fixture de descendente resistente. Remover geracao de codigo via argumento/fixture dedicada, nao atribuir a sanitizacao seguranca de producao. | P3 |
+
+Limites da revisao: os trechos referenciados e seus hooks foram lidos; nao houve
+reproducao desses onze alertas, exploracao, dump de secrets ou varredura cloud.
+Nao esconder caminhos/fixtures da analise para produzir um resultado verde.
+O incremento desta branch corrige outro conjunto reproduzido de problemas HTTP;
+nao afirma que resolveu este backlog inteiro.
+
+## Proximo turno
+
+Primeiro: renderizacao DOM segura e teste de busca sem regressao visual.
+Depois: descriptor/flags de arquivos no executor e laboratorio, com testes locais
+de concorrencia; backpressure do Fastify em etapa propria. Reavaliar CodeQL
+na mesma ref e confirmar alertas corrigidos somente apos teste/scanner.
+Nao reescrever o portfolio ou misturar novas features com essas correcoes.
+
+Gates externos permanecem: patch PostgreSQL autorizado e recuperavel,
+host/WAF/limites financeiros, Auth/CAPTCHA server-side e Stripe TEST externo.
+Nenhuma release main/preview, credencial, plano ou operacao cloud foi alterada.

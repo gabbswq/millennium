@@ -29,7 +29,7 @@ de Stripe/Supabase, carga remota, phishing, exploits e C2 estao fora do escopo.
 - [x] Limitar sync-provider antes de ler corpo ou buscar identidade remota.
 - [x] Adicionar analise estatica de JS/TS com acoes oficiais fixadas por SHA.
 - [x] Auditar ferramentas de desenvolvimento e atualizar patches/minors compativeis.
-- [ ] Validar lint, build, CI de pagamentos e primeira analise CodeQL; revisar resultados.
+- [x] Validar lint, build, CI de pagamentos e primeira analise CodeQL; revisar resultados.
 - [ ] Integrar somente develop apos verificacao. Main/preview nao fazem parte desta etapa.
 
 ## Ativos e fronteiras
@@ -96,6 +96,10 @@ nao persiste credenciais. Sem schedule/auto-merge/deploy. Job verde significa
 analise executada, nao zero alertas: revisar SARIF/alertas e registrar a revisao.
 Nao criar bloqueio de merge por administracao sem autorizacao humana.
 
+[Baseline e triagem dos onze alertas ainda abertos](SECURITY_SCAN_BASELINE.md).
+CI do codigo 216f0357 passou com 131 casos unicos; o incremento HTTP foi
+verificado, mas a meta ampla de seguranca continua aberta.
+
 ## Dependencias: evidencia local
 
 Auditoria completa antes: 35 entradas (13 high, 21 moderate, 1 low).
@@ -118,8 +122,8 @@ confiavel nem usar segredos/runners privados nos testes. Um upgrade de cadeia
 maior exige escopo e regressao proprios. Producao sera auditada separadamente
 pela CI; nenhum resultado aqui certifica todo o software.
 
-Lint e build locais anteriores aos patches passaram; a verificacao do lockfile
-final fica no CI com npm ci --ignore-scripts, lint, dominio, SQL e navegador.
+Lint e build locais anteriores aos patches passaram; o lockfile final passou
+no CI com npm ci --ignore-scripts, lint, dominio, SQL e navegador.
 Nao apresentar tempo dos testes unitarios como latencia real de rede.
 
 ## Proximos gates

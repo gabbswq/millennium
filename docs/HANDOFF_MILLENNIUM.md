@@ -18,7 +18,13 @@ Patches/minors compativeis no lockfile reduziram audit completo de 35 para
 7 entradas high dev/transitivas; audit completo nao esta aprovado. Nao usar
 force/downgrade/migracao Tailwind major; risco e tratamento no programa.
 CodeQL JS/TS adicionado em CI, SHAs oficiais fixos, sem agenda ou segredos.
-Validacao/analise/integracao ainda pendentes; atualizar com evidencia ao concluir.
+Codigo 216f0357 aprovado no [CI](https://github.com/gabbswq/millennium/actions/runs/37214121308):
+67 dominio/auth, 40 SQL nativos por versao (17/18, zero SKIP), 12 navegador,
+12 CAPTCHA, lint/build e audit producao zero alertas conhecidos. 131 casos
+unicos, nao somar matriz/PGlite. [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37214121334)
+executou e encontrou 11 alertas abertos, 10 high/1 medium. Trechos revisados,
+sem supressoes ou reproducao ainda; [triagem e proximo turno](SECURITY_SCAN_BASELINE.md).
+Integrar so develop; esse baseline nao e aceite humano de seguranca ou release.
 
 Nenhuma operacao cloud/pentest, credencial, plano ou pagamento alterado.
 Main/preview preservadas. Supabase schema ja concluido na etapa abaixo;
