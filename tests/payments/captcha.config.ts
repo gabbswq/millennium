@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test'
 import { resolve } from 'node:path'
 
 export default defineConfig({ testDir: '.', testMatch: 'captcha.spec.ts', timeout: 45000,
-  outputDir: 'test-results/auth-captcha',
+  outputDir: resolve(__dirname, '../../test-results/auth-captcha'),
   workers: 1, retries: 0, use: { baseURL: 'http://127.0.0.1:4315', trace: 'retain-on-failure',
     channel: process.env.MILLENNIUM_TEST_BROWSER_CHANNEL === 'msedge' ? 'msedge' : undefined },
   webServer: { command: 'node tests/payments/e2e-server.mjs --captcha', cwd: resolve(__dirname, '../..'),

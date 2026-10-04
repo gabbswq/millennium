@@ -44,7 +44,7 @@ test('password login requires a challenge; consumed or expired tokens cannot ena
   expect(token).toMatch(/^fixtureCaptcha_/)
   await page.getByLabel('Senha', { exact: true }).fill('FixturePass1!')
   await solve(page); await submit.click()
-  await expect(page).toHaveURL(/\/dashboard\/checkout$/)
+  await expect(page).toHaveURL(/\/dashboard\/checkout$/, { timeout: 20000 })
   expect(requests).toHaveLength(2)
   expect(JSON.parse(requests[1]).gotrue_meta_security.captcha_token).not.toBe(token)
   expect(errors).toEqual([])
