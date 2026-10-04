@@ -2,6 +2,30 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Projeto Supabase identificado, 3 de outubro
+
+Gabriel indicou https://pywotovmlxzwwpawpaew.supabase.co. Conexao autorizada
+confirmou organizacao gabbswq no Free, projeto ACTIVE_HEALTHY em Sao Paulo,
+public/millennium_payments sem tabelas ou funcoes, auth.users com 0 usuarios,
+Storage com 0 buckets e historico de migrations vazio. Consultas READ ONLY,
+sem dados pessoais, credenciais ou alteracoes externas.
+
+Advisor confirmou vulnerable_postgres_version: PostgreSQL 17.4 tem patches
+pendentes. Atualizacao e gate antes de pagamentos publicos; nao foi executada.
+[Preflight, evidencia e proximos gates](SUPABASE_PROJECT_PREFLIGHT.md).
+Plano Free nao significa imunidade a abuso ou disponibilidade garantida.
+
+Aplicacao das dez migrations no projeto primario aguarda resposta humana
+explicita; envio da URL nao foi tratado como autorizacao de DDL. Verificar
+preservacao dos timestamps no historico antes de aplicar. Host HTTPS/runtime,
+JWT real, callbacks e Stripe externo ainda nao configurados. Nao editar .env,
+nao provisionar adicionais pagos e nao usar testes destrutivos no Supabase.
+
+Hardening anterior ja integrado em develop 904161771f201f6704117f0edf42951285affa65.
+[CI Checkout/Connect/SQL integrado](https://github.com/gabbswq/millennium/actions/runs/37167284382)
+passou, incluindo PostgreSQL 17/18 com 33/33 e zero SKIP. Main preservada em
+3516b043c1be906e6d7c2631d7de9be74cf628cb; preview e release nao solicitadas.
+
 ## Banco e autenticacao: hardening incremental, 3 de outubro
 
 Feature payments-database-hardening parte de develop 0282a18, nao de main.
