@@ -277,6 +277,40 @@ test('authenticated clients cannot inject objects into the public search path', 
 })
 
 // Separate connections are essential: PGlite serializes queries in one session.
+async function recoveryReservation() {
+  const user = randomUUID()
+  await db.query('INSERT INTO auth.users(id,email) VALUES ($1,$2)', [user, `${user}@fixture.test`])
+  const record = (await db.query('SELECT * FROM public.reserve_stripe_checkout($1,$2,$3)', [user, price, randomUUID()])).rows[0]
+  await db.query('SELECT * FROM public.claim_stripe_checkout($1,$2)', [user, record.id])
+  await db.query("UPDATE public.stripe_checkout_requests SET creation_state = 'UNCERTAIN' WHERE id = $1", [record.id])
+  return (await db.query('SELECT *, updated_at::text AS snapshot FROM public.stripe_checkout_requests WHERE id = $1', [record.id])).rows[0]
+}
+function recoveryBind(client, record, session) {
+  return client.query(`UPDATE public.stripe_checkout_requests
+    SET creation_state = 'BOUND', stripe_session_id = $1, checkout_url = 'https://checkout.stripe.com/c/pay/fixture', expires_at = 9999999999
+    WHERE id = $2 AND user_id = $3 AND request_id = $4 AND creation_state = $5 AND updated_at = $6::timestamptz
+      AND payment_state = 'pending' AND stripe_session_id IS NULL AND checkout_url IS NULL AND expires_at IS NULL RETURNING id`,
+  [session, record.id, record.user_id, record.request_id, record.creation_state, record.snapshot])
+}
+test('recovery conditional binding preserves pending payment and cannot be repeated', async () => {
+  await as(null, null, async () => {
+    const record = await recoveryReservation()
+    await db.exec('SET LOCAL ROLE service_role')
+    assert.equal((await recoveryBind(db, record, 'cs_test_sqlRecovery')).rows.length, 1)
+    assert.equal((await recoveryBind(db, record, 'cs_test_sqlRecovery')).rows.length, 0)
+    assert.equal((await db.query('SELECT payment_state FROM public.stripe_checkout_requests WHERE id = $1', [record.id])).rows[0].payment_state, 'pending')
+  })
+})
+test('recovery refuses stale snapshot after another update or original binder', async () => {
+  await as(null, null, async () => {
+    const record = await recoveryReservation()
+    await db.query("UPDATE public.stripe_checkout_requests SET payment_state = 'failed' WHERE id = $1", [record.id])
+    await db.exec('SET LOCAL ROLE service_role')
+    assert.equal((await recoveryBind(db, record, 'cs_test_sqlRecovery')).rows.length, 0)
+    assert.equal((await db.query('SELECT creation_state FROM public.stripe_checkout_requests WHERE id = $1', [record.id])).rows[0].creation_state, 'UNCERTAIN')
+  })
+})
+
 async function concurrent(count, action) {
   const clients = await Promise.all(Array.from({ length: count }, () => db.connect()))
   try {
@@ -290,6 +324,14 @@ async function newUsers(count) {
   return users
 }
 const nativeOnly = { skip: !process.env.MILLENNIUM_TEST_DATABASE_URL, timeout: 30000 }
+
+test('native PostgreSQL: two recovery operators cannot bind different sessions to one reservation', nativeOnly, async () => {
+  const record = await recoveryReservation()
+  const results = await concurrent(2, (client, index) => recoveryBind(client, record, `cs_test_concurrentRecovery${index}`))
+  assert.ok(results.every(result => result.status === 'fulfilled'))
+  assert.equal(results.reduce((sum, result) => sum + result.value.rows.length, 0), 1)
+  assert.equal((await db.query('SELECT payment_state FROM public.stripe_checkout_requests WHERE id = $1', [record.id])).rows[0].payment_state, 'pending')
+})
 
 test('native PostgreSQL: simultaneous checkout reservations reuse one durable identity', nativeOnly, async () => {
   const [user] = await newUsers(1)
