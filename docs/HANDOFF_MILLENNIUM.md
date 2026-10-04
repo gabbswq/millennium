@@ -12,9 +12,11 @@ usa somente identidade retornada pelo Supabase getUser(token), nunca metadata
 editavel; cliente envia apenas provider. Nao ha aprovacao local de KYC.
 
 Local: 35 testes dominio/auth, 28 SQL com todas as 10 migrations, 12 navegador
-desktop/mobile passaram. Os 5 ensaios multiconexao requerem PostgreSQL nativo
-e ficam SKIP no PGlite; novos jobs CI PostgreSQL 17/18 sao o gate dessa prova.
-Lint e typecheck passaram; revalidar build e conclusao dos jobs no SHA publicado.
+desktop/mobile passaram. Os 5 ensaios multiconexao ficam SKIP no PGlite, mas
+executaram no CI PostgreSQL 17 e 18: 33/33 por versao, zero SKIP. Sao 80 casos
+unicos de pagamentos, nao somar repeticoes da matriz. Lint, tipos, build e
+browser CI passaram no codigo 9ef2c465.
+[CI da feature](https://github.com/gabbswq/millennium/actions/runs/37155561152).
 Driver pg fica somente em devDependencies. Banco real ainda nao aplicado.
 Audit de producao sem alertas conhecidos; audit completo continua com alertas
 dev. Nao afirmar teto de custo ou protecao absoluta a partir destes testes.
@@ -24,7 +26,7 @@ dono das funcoes e grants efetivos no projeto Supabase escolhido antes de
 migrar. Projeto/plano/host/teto financeiro ainda faltam. Nao ler chaves ou
 alterar .env; nao implantar Edge Functions legadas no novo Checkout.
 
-Proximos gates: CI nativo, integrar somente develop; reconciliacao segura de
+Proximos gates: integrar somente develop; reconciliacao segura de
 reservas UNCERTAIN e teste externo de login/Stripe/WAF/limites no projeto
 autorizado. Preview/main exigem handoff/release conforme AGENTS. A meta nao
 esta completa enquanto identidade real e fluxo financeiro externo faltarem.
