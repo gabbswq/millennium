@@ -77,7 +77,9 @@ preservados. Nunca converter registros de simulacao em dados financeiros Stripe.
   host, alertas, runbook de desligamento e ensaio de ataque antes da exposicao.
 - Supabase Spend Cap do Pro cobre somente itens definidos pelo provedor, nao
   todos os gastos (compute/PITR e outros ficam fora). Conta existe segundo
-  Gabriel; projeto, plano, limites e alertas NAO foram verificados/aplicados.
+  Gabriel. Projeto pywotovmlxzwwpawpaew/plano Free/schema e advisors foram
+  verificados em 4 de outubro; WAF/limites remotos de trafego e alertas financeiros
+  continuam pendentes. [Evidencia](SUPABASE_BOOTSTRAP_EVIDENCE.md).
   A foto de custos de terceiros nao e tabela atual nem orcamento aprovado.
 - Nao contratar simultaneamente AWS, Railway, Vercel e outros so por constarem
   na foto. Escolher um host de backend e o projeto Supabase, com custo aprovado.

@@ -2,6 +2,38 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Schema Supabase autorizado, 4 de outubro
+
+Gabriel autorizou tabelas/permissoes em pywotovmlxzwwpawpaew, sem mudar plano
+ou habilitar pagamentos reais. Develop de origem: 802d2ffc. Feature
+supabase-authorized-bootstrap adiciona duas migrations de grants/snapshot,
+quatro testes SQL, um probe cloud transacional e documentacao. Dez migrations
+anteriores intactas; historico remoto reconciliado e comparado com as 12 locais.
+[Evidencia, procedimento, advisors e proximos gates](SUPABASE_BOOTSTRAP_EVIDENCE.md).
+
+18 tabelas com RLS. Plano Free confirmado antes/depois. Probe real passou:
+dono, segundo dono, anon, campos privados, papel e writes privilegiados.
+Claims SQL sinteticas, nao login/JWT reais; rollback confirmou zero contas,
+produtos e reservas de teste persistidos. Sem chamadas Stripe/credenciais.
+SQL local: 34/40 PGlite, seis SKIP de concorrencia nativa. Codigo
+f6219db32e157a2411ff9ed6a7628c724a6a3b43 aprovado no
+[CI da feature](https://github.com/gabbswq/millennium/actions/runs/37212020872):
+57 dominio/auth, 40 SQL nativos por versao (17/18, zero SKIP), 12 navegador
+e 12 CAPTCHA. Sao 121 casos unicos, sem somar matriz/PGlite. Lint, build e
+audit omit=dev aprovados; zero vulnerabilidades conhecidas de producao nao
+certifica dependencias dev nem a seguranca completa. Integrar apenas develop.
+
+Snapshot featured_articles agora exclusivo do servidor; public_articles segue
+invoker/RLS. Defaults antigos davam permissoes alem de RLS, agora revogadas nos
+objetos de conteudo e em defaults postgres para futuros objetos. CLI local
+2.119.0 verificado, sem instalacao global; cache supabase/.temp ignorado.
+
+Gate remoto continua: patch PostgreSQL 17.4.1.075. Nao atualizar/reiniciar ou
+mudar plano sem autorizacao e recuperacao planejada. Advisors de descoberta
+GraphQL/helpers definer intencionais documentados, performance em backlog.
+Meta ampla nao concluida: faltam runtime HTTPS/orcamento, Auth/CAPTCHA/emails,
+WAF/quotas/alertas e ensaio Stripe test-only com webhook. Main/preview preservadas.
+
 ## CAPTCHA de Auth, 4 de outubro
 
 Feature auth-captcha parte de develop 0daa804f. Formularios enviam token
