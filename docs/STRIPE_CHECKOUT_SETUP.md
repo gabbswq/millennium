@@ -23,6 +23,8 @@ tests/payments/e2e-server.mjs, nao um modo de demonstracao dentro do aplicativo.
 | --- | --- |
 | NEXT_PUBLIC_SUPABASE_URL | URL publica do projeto de homologacao |
 | NEXT_PUBLIC_SUPABASE_ANON_KEY | Chave publica, com RLS; nunca service key |
+| NEXT_PUBLIC_AUTH_CAPTCHA_ENABLED | true apos preparar Turnstile e enforcement Auth |
+| NEXT_PUBLIC_TURNSTILE_SITE_KEY | Site key publica; segredo privado somente no Supabase Auth |
 | SUPABASE_SERVICE_ROLE_KEY | Exclusiva do servidor, escopo privilegiado |
 | MILLENNIUM_APP_ORIGIN | Origem HTTPS exata, sem caminho/query/credenciais |
 | STRIPE_SECRET_KEY | Exclusivamente sk_test_ nesta versao |
@@ -79,7 +81,9 @@ Endpoints desconhecidos ou ainda nao vinculados nao sao silenciosamente pagos.
    timeouts e logs redigidos. GitHub Pages nao executa estas rotas Next.
 3. Configurar URLs de callback/confirmacao no Supabase para o dominio aprovado.
    Testar login real, confirmacao, recuperacao, expiracao e logout com dois donos.
-   CAPTCHA exige integracao de token no formulario antes de ativar enforcement.
+   Formularios suportam CAPTCHA opt-in. Configurar widget/variaveis e ativar
+   enforcement no Supabase conforme [runbook](AUTH_ABUSE_PROTECTION.md).
+   Guard no cliente sozinho nao protege chamadas diretas a API de Auth.
 4. Aplicar migrations revisadas e conferir isolamento com usuarios distintos.
 5. Ativar somente Checkout de teste. Abrir sessao, cancelar, concluir pagamento
    ficticio e receber webhook correlacionado com mesmo pedido/valor/moeda.
@@ -107,6 +111,7 @@ npm run test:payments:sql
 npm run build
 npm exec -- playwright install --with-deps chromium
 npm run test:payments:e2e
+npm run test:auth:captcha:e2e
 npm audit --omit=dev
 ```
 
@@ -114,12 +119,15 @@ Windows com Edge instalado: definir MILLENNIUM_TEST_BROWSER_CHANNEL=msedge no
 processo do terminal permite rodar a suite sem baixar Chromium. A suite usa
 portas loopback 4313 e 4314 e Stripe desativada. Sessao ficticia valida apenas
 o fluxo do app; nao prova autenticacao JWT real ou cadastro/pagamento na Stripe.
+CAPTCHA usa outra fixture loopback (4315/4316) e SDK ficticio interceptado
+somente pelos testes. Rodar sequencialmente, pois compartilham .next-e2e.
 SQL local usa PGlite efemero com a cadeia inteira de migrations, incluindo
 unaccent e defaults historicos permissivos. Reproduz a recursao anterior antes
-de aplicar a correcao. CI repete a suite em PostgreSQL 17 e 18 e adiciona cinco
-ensaios multiconexao: reservas/claims de Checkout e vendedor, webhook duplicado
-e limites globais de 100 Checkouts/25 cadastros por dia sob concorrencia.
-Localmente esses cinco ensaios ficam explicitamente SKIP sem PostgreSQL nativo.
+de aplicar a correcao. CI repete a suite em PostgreSQL 17 e 18 e adiciona seis
+ensaios multiconexao: reservas/claims de Checkout e vendedor, webhook duplicado,
+limites globais de 100 Checkouts/25 cadastros por dia e vinculo de recuperacao
+compare-and-set entre operadores concorrentes.
+Localmente esses seis ensaios ficam explicitamente SKIP sem PostgreSQL nativo.
 
 Para o ensaio nativo, MILLENNIUM_TEST_DATABASE_URL aceita somente uma base
 loopback vazia com nome millennium_test_*. Recusa URL remota, query/hash,

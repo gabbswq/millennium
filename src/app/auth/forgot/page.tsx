@@ -6,7 +6,9 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { forgotSchema, mapAuthError, type ForgotValues } from '@/types/auth'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
+import { useAuthCaptcha } from '@/hooks/useAuthCaptcha'
+import { AuthCaptcha } from '@/components/auth/AuthCaptcha'
 
 import { Button }   from '@/components/ui/button'
 import { Input }    from '@/components/ui/input'
@@ -27,6 +29,9 @@ import {
 } from '@/components/ui/card'
 
 export default function ForgotPasswordPage() {
+  const { requestPasswordReset } = useAuth()
+  const captcha = useAuthCaptcha()
+  const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
   const [submitted, setSubmitted]     = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
 
@@ -37,16 +42,11 @@ export default function ForgotPasswordPage() {
 
   async function onSubmit({ email }: ForgotValues) {
     setServerError(null)
-    const supabase = createClient()
-
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      // Supabase sends a magic link; clicking it lands on /auth/reset
-      // with the access token in the URL fragment (handled by the callback page).
-      redirectTo: `${window.location.origin}/auth/reset`,
-    })
+    const { error } = await requestPasswordReset(email, captcha.takeToken())
+    captcha.reset()
 
     if (error) {
-      setServerError(mapAuthError(error.message))
+      setServerError(mapAuthError(error.message, error.code))
       return
     }
 
@@ -93,6 +93,7 @@ export default function ForgotPasswordPage() {
         </CardHeader>
 
         <CardContent>
+          {!configured && <p className="payment-notice" role="status">Autenticacao ainda nao configurada neste ambiente.</p>}
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -118,6 +119,7 @@ export default function ForgotPasswordPage() {
                 )}
               />
 
+              <AuthCaptcha control={captcha} />
               {serverError && (
                 <p className="text-sm font-medium text-destructive" role="alert">
                   {serverError}
@@ -127,7 +129,7 @@ export default function ForgotPasswordPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={form.formState.isSubmitting}
+                disabled={!configured || !captcha.ready || form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? 'Enviando…' : 'Enviar link de recuperação'}
               </Button>

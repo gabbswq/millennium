@@ -71,6 +71,9 @@ const ERROR_MAP: Record<string, string> = {
     'O link expirou ou é inválido. Solicite um novo.',
 }
 
-export function mapAuthError(message: string): string {
+export function mapAuthError(message: string, code?: string): string {
+  if (code === 'captcha_failed') return message === 'captcha_configuration_unavailable'
+    ? 'Verificacao de seguranca indisponivel.' : 'Verificacao de seguranca pendente ou expirada.'
+  if (message === 'auth_request_unavailable') return 'Autenticacao indisponivel. Tente novamente.'
   return ERROR_MAP[message] ?? 'Algo deu errado. Tente novamente.'
 }
