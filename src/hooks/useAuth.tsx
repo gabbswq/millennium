@@ -10,6 +10,7 @@ import {
 import type { Session, User, AuthError } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import type { LoginValues, SignUpValues } from '@/types/auth'
+import { captchaProtected } from '@/lib/auth/captcha'
 
 // ---------------------------------------------------------------------------
 // Context shape
@@ -19,11 +20,12 @@ interface AuthContextValue {
   session: Session | null
   /** True while the initial session is being fetched from Supabase. */
   loading: boolean
-  signUp: (values: SignUpValues) => Promise<{ error: AuthError | null }>
-  signIn: (values: LoginValues) => Promise<{ error: AuthError | null }>
+  signUp: (values: SignUpValues, captchaToken?: string) => Promise<{ error: AuthError | null }>
+  signIn: (values: LoginValues, captchaToken?: string) => Promise<{ error: AuthError | null }>
   signInWithProvider: (provider: 'google') => Promise<{ error: AuthError | null }>
   signOut: () => Promise<void>
-  resendVerification: (email: string) => Promise<{ error: AuthError | null }>
+  resendVerification: (email: string, captchaToken?: string) => Promise<{ error: AuthError | null }>
+  requestPasswordReset: (email: string, captchaToken?: string) => Promise<{ error: AuthError | null }>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -93,29 +95,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Auth actions
   // -------------------------------------------------------------------------
   const signUp = useCallback(
-    async ({ email, password, display_name }: SignUpValues) => {
-      const { error } = await supabase.auth.signUp({
+    async ({ email, password, display_name }: SignUpValues, captchaToken?: string) => {
+      return captchaProtected(captchaToken, captchaOptions => supabase.auth.signUp({
         email,
         password,
         options: {
+          ...captchaOptions,
           // display_name is picked up by the handle_new_auth_user DB trigger
           // via raw_user_meta_data ->> 'full_name'.
           data: { full_name: display_name },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
-      })
-      return { error }
+      }))
     },
     [supabase],
   )
 
   const signIn = useCallback(
-    async ({ email, password }: LoginValues) => {
-      const { error } = await supabase.auth.signInWithPassword({
+    async ({ email, password }: LoginValues, captchaToken?: string) => {
+      return captchaProtected(captchaToken, options => supabase.auth.signInWithPassword({
         email,
         password,
-      })
-      return { error }
+        options,
+      }))
     },
     [supabase],
   )
@@ -138,14 +140,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase])
 
   const resendVerification = useCallback(
-    async (email: string) => {
-      const { error } = await supabase.auth.resend({
+    async (email: string, captchaToken?: string) => {
+      return captchaProtected(captchaToken, options => supabase.auth.resend({
         type: 'signup',
         email,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-      })
-      return { error }
+        options: { ...options, emailRedirectTo: `${window.location.origin}/auth/callback` },
+      }))
     },
+    [supabase],
+  )
+
+  const requestPasswordReset = useCallback(
+    async (email: string, captchaToken?: string) => captchaProtected(captchaToken, options =>
+      supabase.auth.resetPasswordForEmail(email, { ...options, redirectTo: `${window.location.origin}/auth/reset` })),
     [supabase],
   )
 
@@ -160,6 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signInWithProvider,
         signOut,
         resendVerification,
+        requestPasswordReset,
       }}
     >
       {children}

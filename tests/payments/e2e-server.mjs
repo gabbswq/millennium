@@ -6,6 +6,9 @@ import { fileURLToPath } from 'node:url'
 const id = '00000000-0000-4000-8000-000000000001'
 const priceId = '10000000-0000-4000-8000-000000000001'
 const tokens = new Map()
+const captchaMode = process.argv.includes('--captcha')
+const appPort = captchaMode ? 4315 : 4313, authPort = captchaMode ? 4316 : 4314
+const usedCaptcha = new Set()
 function session(email) {
   const confirmed = email !== 'pending@example.test'
   const user = { id, aud: 'authenticated', role: 'authenticated', email, email_confirmed_at: confirmed ? '2026-10-03T00:00:00Z' : null,
@@ -15,15 +18,29 @@ function session(email) {
   return { access_token: token, refresh_token: 'fixture-only', token_type: 'bearer', expires_in: 3600, user }
 }
 const server = http.createServer(async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'http://127.0.0.1:4313')
+  res.setHeader('Access-Control-Allow-Origin', `http://127.0.0.1:${appPort}`)
   res.setHeader('Access-Control-Allow-Headers', 'authorization,apikey,content-type,x-client-info,x-supabase-api-version')
   res.setHeader('Content-Type', 'application/json')
   if (req.method === 'OPTIONS') { res.end(); return }
-  const url = new URL(req.url, 'http://127.0.0.1:4314')
+  const url = new URL(req.url, `http://127.0.0.1:${authPort}`)
   const user = tokens.get(req.headers.authorization?.replace(/^Bearer /i, ''))
-  if (url.pathname === '/auth/v1/token') {
+  if (['/auth/v1/token', '/auth/v1/signup', '/auth/v1/recover', '/auth/v1/resend'].includes(url.pathname)) {
     let raw = ''; for await (const chunk of req) raw += chunk
     const body = JSON.parse(raw)
+    const captcha = body.gotrue_meta_security?.captcha_token
+    if (captchaMode && (typeof captcha !== 'string' || !captcha.startsWith('fixtureCaptcha_') || usedCaptcha.has(captcha))) {
+      res.statusCode = 400; res.end(JSON.stringify({ msg: 'captcha verification process failed', error_code: 'captcha_failed' })); return
+    }
+    if (captchaMode) usedCaptcha.add(captcha)
+    if (url.pathname === '/auth/v1/signup') {
+      res.end(JSON.stringify({ user: { ...session(body.email).user, email_confirmed_at: null, confirmed_at: null } })); return
+    }
+    if (url.pathname === '/auth/v1/recover' || url.pathname === '/auth/v1/resend') {
+      if (body.email === 'serverfail@example.test') {
+        res.statusCode = 429; res.end(JSON.stringify({ msg: 'Email rate limit exceeded', error_code: 'over_email_send_rate_limit' })); return
+      }
+      res.end('{}'); return
+    }
     if (body.password !== 'FixturePass1!') { res.statusCode = 400; res.end(JSON.stringify({ msg: 'Invalid login credentials', error_code: 'invalid_credentials' })); return }
     res.end(JSON.stringify(session(body.email))); return
   }
@@ -42,11 +59,13 @@ const server = http.createServer(async (req, res) => {
   }
   res.statusCode = 404; res.end('{}')
 })
-server.listen(4314, '127.0.0.1')
-const child = spawn(process.execPath, [fileURLToPath(new URL('../../node_modules/next/dist/bin/next', import.meta.url)), 'dev', '--hostname', '127.0.0.1', '--port', '4313'], {
+server.listen(authPort, '127.0.0.1')
+const child = spawn(process.execPath, [fileURLToPath(new URL('../../node_modules/next/dist/bin/next', import.meta.url)), 'dev', '--hostname', '127.0.0.1', '--port', String(appPort)], {
   stdio: 'inherit', windowsHide: true, env: { ...process.env, NEXT_TELEMETRY_DISABLED: '1', MILLENNIUM_E2E: 'true',
-    NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:4314', NEXT_PUBLIC_SUPABASE_ANON_KEY: 'fixture-public-key',
-    MILLENNIUM_APP_ORIGIN: 'http://127.0.0.1:4313', STRIPE_CHECKOUT_ENABLED: 'false', STRIPE_CONNECT_ENABLED: 'false',
+    NEXT_PUBLIC_SUPABASE_URL: `http://127.0.0.1:${authPort}`, NEXT_PUBLIC_SUPABASE_ANON_KEY: 'fixture-public-key',
+    NEXT_PUBLIC_AUTH_CAPTCHA_ENABLED: captchaMode ? 'true' : 'false',
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: captchaMode ? '0xFixturePublicSiteKey' : '',
+    MILLENNIUM_APP_ORIGIN: `http://127.0.0.1:${appPort}`, STRIPE_CHECKOUT_ENABLED: 'false', STRIPE_CONNECT_ENABLED: 'false',
     STRIPE_SECRET_KEY: '', SUPABASE_SERVICE_ROLE_KEY: '', STRIPE_CONNECT_WEBHOOK_SECRET: '', STRIPE_CHECKOUT_WEBHOOK_SECRET: '',
   },
 })

@@ -8,6 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { signUpSchema, mapAuthError, type SignUpValues } from '@/types/auth'
 import { useAuth } from '@/hooks/useAuth'
+import { useAuthCaptcha } from '@/hooks/useAuthCaptcha'
+import { AuthCaptcha } from '@/components/auth/AuthCaptcha'
 import { PasswordStrengthMeter } from '@/components/auth/PasswordStrengthMeter'
 
 import { Button }   from '@/components/ui/button'
@@ -30,11 +32,14 @@ import {
 
 export default function SignUpPage() {
   const { signUp, resendVerification } = useAuth()
+  const captcha = useAuthCaptcha()
   const router = useRouter()
 
   const [serverError, setServerError]     = useState<string | null>(null)
   const [pendingEmail, setPendingEmail]   = useState<string | null>(null)
   const [resendSent, setResendSent]       = useState(false)
+  const [resending, setResending] = useState(false)
+  const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
   const form = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
@@ -45,7 +50,8 @@ export default function SignUpPage() {
 
   async function onSubmit(values: SignUpValues) {
     setServerError(null)
-    const { error } = await signUp(values)
+    const { error } = await signUp(values, captcha.takeToken())
+    captcha.reset()
 
     if (error) {
       // Duplicate email — offer login instead of a raw error.
@@ -54,7 +60,7 @@ export default function SignUpPage() {
         router.push(`/auth/login?hint=exists&email=${encodeURIComponent(values.email)}`)
         return
       }
-      setServerError(mapAuthError(error.message))
+      setServerError(mapAuthError(error.message, error.code))
       return
     }
 
@@ -63,8 +69,13 @@ export default function SignUpPage() {
   }
 
   async function handleResend() {
-    if (!pendingEmail) return
-    await resendVerification(pendingEmail)
+    if (!pendingEmail || resending) return
+    setResending(true)
+    setServerError(null)
+    const { error } = await resendVerification(pendingEmail, captcha.takeToken())
+    captcha.reset()
+    setResending(false)
+    if (error) { setServerError(mapAuthError(error.message, error.code)); return }
     setResendSent(true)
   }
 
@@ -82,12 +93,14 @@ export default function SignUpPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
+            {!resendSent && <AuthCaptcha control={captcha} />}
+            {serverError && <p role="alert" className="text-sm text-destructive">{serverError}</p>}
             {resendSent ? (
               <p className="text-sm text-muted-foreground">
                 Email reenviado. Verifique sua caixa de entrada (e spam).
               </p>
             ) : (
-              <Button variant="outline" onClick={handleResend}>
+              <Button variant="outline" onClick={handleResend} disabled={!configured || !captcha.ready || resending}>
                 Reenviar email de confirmação
               </Button>
             )}
@@ -115,6 +128,7 @@ export default function SignUpPage() {
         </CardHeader>
 
         <CardContent>
+          {!configured && <p className="payment-notice" role="status">Autenticacao ainda nao configurada neste ambiente.</p>}
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -177,6 +191,7 @@ export default function SignUpPage() {
                 )}
               />
 
+              <AuthCaptcha control={captcha} />
               {/* Server-side error */}
               {serverError && (
                 <p className="text-sm font-medium text-destructive" role="alert">
@@ -187,7 +202,7 @@ export default function SignUpPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={form.formState.isSubmitting}
+                disabled={!configured || !captcha.ready || form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? 'Criando conta…' : 'Criar conta'}
               </Button>

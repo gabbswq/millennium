@@ -10,6 +10,7 @@
     "test:payments": "node --import tsx --test src/lib/stripe/*.test.ts src/lib/auth/*.test.ts",
     "test:payments:sql": "node --test tests/payments/database.test.mjs",
     "test:payments:e2e": "playwright test --config tests/payments/playwright.config.ts",
+    "test:auth:captcha:e2e": "playwright test --config tests/payments/captcha.config.ts",
     "payments:recover-checkout": "node --import tsx scripts/payments/recover-checkout.mjs",
     "typecheck": "tsc --noEmit",
     "millennium": "node scripts/millennium/cli.mjs",

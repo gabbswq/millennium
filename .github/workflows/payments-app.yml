@@ -56,6 +56,7 @@ jobs:
       - run: npm run build
       - run: npm exec -- playwright install --with-deps chromium
       - run: npm run test:payments:e2e
+      - run: npm run test:auth:captcha:e2e
       - uses: actions/upload-artifact@v6
         if: always()
         with:

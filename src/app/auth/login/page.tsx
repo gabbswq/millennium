@@ -8,6 +8,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { loginSchema, mapAuthError, type LoginValues } from '@/types/auth'
 import { useAuth } from '@/hooks/useAuth'
+import { useAuthCaptcha } from '@/hooks/useAuthCaptcha'
+import { AuthCaptcha } from '@/components/auth/AuthCaptcha'
 import { PaymentShell } from '@/components/payments/shell'
 
 import { Button }   from '@/components/ui/button'
@@ -54,6 +56,7 @@ function GoogleIcon() {
 
 function LoginPageContent() {
   const { signIn, signInWithProvider } = useAuth()
+  const captcha = useAuthCaptcha()
   const router = useRouter()
   const params = useSearchParams()
 
@@ -72,9 +75,10 @@ function LoginPageContent() {
 
   async function onSubmit(values: LoginValues) {
     setServerError(null)
-    const { error } = await signIn(values)
+    const { error } = await signIn(values, captcha.takeToken())
+    captcha.reset()
     if (error) {
-      setServerError(mapAuthError(error.message))
+      setServerError(mapAuthError(error.message, error.code))
       return
     }
     router.replace('/dashboard')
@@ -174,6 +178,7 @@ function LoginPageContent() {
                 )}
               />
 
+              <AuthCaptcha control={captcha} />
               {serverError && (
                 <p className="text-sm font-medium text-destructive" role="alert">
                   {serverError}
@@ -183,7 +188,7 @@ function LoginPageContent() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={!configured || form.formState.isSubmitting || oauthLoading}
+                disabled={!configured || !captcha.ready || form.formState.isSubmitting || oauthLoading}
               >
                 {form.formState.isSubmitting ? 'Entrando…' : 'Entrar'}
               </Button>
