@@ -84,7 +84,12 @@ Auditoria remota confirmou:
   Checkout e vendedores continuam com zero registros. Nenhum pagamento processado.
 
 SQL local: 40 casos; 34 aprovados no PGlite, seis de concorrencia exclusivos
-do PostgreSQL nativo marcados SKIP. Evidencia CI sera registrada no handoff.
+do PostgreSQL nativo marcados SKIP. Codigo f6219db3 aprovado no
+[CI](https://github.com/gabbswq/millennium/actions/runs/37212020872):
+40/40 SQL em PostgreSQL 17 e 18, zero SKIP; 57 dominio/auth, 12 navegador e
+12 CAPTCHA. Sao 121 casos unicos; nao somar repeticoes de matriz/PGlite.
+Lint/build/audit omit=dev aprovados. Auditoria de producao com zero alertas
+conhecidos nao certifica dependencias dev nem todos os riscos do projeto.
 O harness SQL descartavel nao foi apontado para o banco remoto.
 
 ## Advisors e limites restantes

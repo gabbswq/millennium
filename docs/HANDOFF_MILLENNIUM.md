@@ -15,7 +15,13 @@ anteriores intactas; historico remoto reconciliado e comparado com as 12 locais.
 dono, segundo dono, anon, campos privados, papel e writes privilegiados.
 Claims SQL sinteticas, nao login/JWT reais; rollback confirmou zero contas,
 produtos e reservas de teste persistidos. Sem chamadas Stripe/credenciais.
-SQL local: 34/40 PGlite, seis SKIP de concorrencia nativa; CI pendente nesta revisao.
+SQL local: 34/40 PGlite, seis SKIP de concorrencia nativa. Codigo
+f6219db32e157a2411ff9ed6a7628c724a6a3b43 aprovado no
+[CI da feature](https://github.com/gabbswq/millennium/actions/runs/37212020872):
+57 dominio/auth, 40 SQL nativos por versao (17/18, zero SKIP), 12 navegador
+e 12 CAPTCHA. Sao 121 casos unicos, sem somar matriz/PGlite. Lint, build e
+audit omit=dev aprovados; zero vulnerabilidades conhecidas de producao nao
+certifica dependencias dev nem a seguranca completa. Integrar apenas develop.
 
 Snapshot featured_articles agora exclusivo do servidor; public_articles segue
 invoker/RLS. Defaults antigos davam permissoes alem de RLS, agora revogadas nos
