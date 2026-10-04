@@ -19,3 +19,5 @@ payments-sandbox/test-results/
 payments-sandbox/playwright-report/
 test-results/
 playwright-report/
+supabase/.temp/
+supabase/.branches/

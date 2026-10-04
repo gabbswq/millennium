@@ -1,7 +1,8 @@
 # Millennium: Checkout e Vendedores em homologacao
 
-Codigo de teste, nao gateway financeiro pronto. Nenhuma conta externa foi
-configurada por esta feature. Configure por canais seguros do provedor; nao
+Codigo de teste, nao gateway financeiro pronto. O schema do projeto Supabase
+autorizado foi preparado em 4 de outubro; Auth/Stripe/runtime nao estao conectados.
+Configure por canais seguros do provedor; nao
 cole chaves, senhas ou tokens no chat. Nao editar .env neste fluxo do agente.
 
 ## Rodar o app
@@ -36,14 +37,17 @@ tests/payments/e2e-server.mjs, nao um modo de demonstracao dentro do aplicativo.
 Migrations novas dependem de auth.users e do catalogo public.products/prices.
 Antes de aplicar: revisar migrations legadas, grants/RLS, backup e plano de
 restauracao no projeto de homologacao escolhido. Nao executar push de todas as
-migrations sobre uma base pessoal existente sem inventario. Aplicacao externa
-nao foi realizada. Comparar schema real com src/types/database.ts depois.
+migrations sobre uma base pessoal existente sem inventario. Projeto
+pywotovmlxzwwpawpaew recebeu a cadeia completa mais os dois ajustes de grants;
+[evidencia e alertas restantes](SUPABASE_BOOTSTRAP_EVIDENCE.md).
 
 Novas migrations, nesta ordem:
 
 1. 20261003000000_stripe_connect_access.sql
 2. 20261003000001_stripe_checkout_access.sql
 3. 20261003000002_auth_access_hardening.sql
+4. 20261004123048_content_privileges_hardening.sql
+5. 20261004150302_private_featured_snapshot.sql
 
 A terceira corrige a recursao das policies de public.users, limita PATCH do
 perfil a display_name/avatar_url/metadata e reserva identidade/email/role ao

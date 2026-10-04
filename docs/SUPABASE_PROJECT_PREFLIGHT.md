@@ -1,5 +1,10 @@
 # Supabase do Millennium: verificacao antes de migrar
 
+Atualizacao de 4 de outubro: Gabriel autorizou a escrita e o schema foi aplicado,
+com 18 tabelas/RLS e 12 migrations reconciliadas. Plano Free mantido, sem dinheiro
+real ou credenciais alteradas. Este documento conserva o snapshot anterior;
+estado e limites atuais em [SUPABASE_BOOTSTRAP_EVIDENCE.md](SUPABASE_BOOTSTRAP_EVIDENCE.md).
+
 Snapshot em 2026-10-03, 22:27 America/Sao_Paulo (2026-10-04, 01:27 UTC).
 Somente leitura pela conexao Supabase autorizada. Revalidar antes de alterar
 o banco; este registro nao equivale a autorizacao de deploy ou pagamentos.
@@ -70,7 +75,7 @@ paga ou prometer protecao absoluta de custo. RLS protege dados; nao impede
 sozinho o consumo de trafego/requisicoes. WAF/limites antes da invocacao,
 quotas e resposta a abuso continuam sendo gates da hospedagem.
 
-## Proxima aplicacao, ainda nao executada
+## Roteiro anterior a autorizacao
 
 Gabriel recebeu uma pergunta explicita sobre aplicar as migrations neste
 projeto primario. A URL confirma a escolha do projeto, nao uma resposta a

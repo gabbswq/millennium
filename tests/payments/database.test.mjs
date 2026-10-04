@@ -145,9 +145,52 @@ test('per-user daily checkout budget rejects a sixth request', async () => {
 
 test('full historical migration chain reproduces and repairs recursive user RLS', async () => {
   assert.equal(reproducedRecursion, true)
-  assert.equal(migrations.length, 10)
+  assert.equal(migrations.length, 12)
   for (const user of [a, b]) await as('authenticated', user, async () => {
     assert.deepEqual((await db.query('SELECT id FROM public.users')).rows, [{ id: user }])
+  })
+})
+
+test('browser content grants exclude RLS-bypassing privileges and private view writes', async () => {
+  for (const role of ['anon', 'authenticated']) {
+    for (const table of ['articles', 'pages', 'tags', 'article_tags', 'article_assets']) {
+      const { rows } = await db.query(`SELECT has_table_privilege($1, $2, 'TRUNCATE') AS truncate,
+        has_table_privilege($1, $2, 'REFERENCES') AS references,
+        has_table_privilege($1, $2, 'TRIGGER') AS trigger`, [role, `public.${table}`])
+      assert.ok(Object.values(rows[0]).every(value => value === false))
+    }
+    await assert.rejects(as(role, a, () => db.exec('TRUNCATE public.tags')), code('42501'))
+    await assert.rejects(as(role, a, () => db.exec('DELETE FROM public.authors')), code('42501'))
+    await assert.rejects(as(role, a, () => db.exec('DELETE FROM public.featured_articles')), code('42501'))
+  }
+})
+
+test('cached article snapshots are server-only while public live content stays readable', async () => {
+  for (const role of ['anon', 'authenticated']) await assert.rejects(
+    as(role, a, () => db.query('SELECT * FROM public.featured_articles')), code('42501'))
+  await as('anon', null, () => db.query('SELECT * FROM public.public_articles'))
+  await as('service_role', null, () => db.query('SELECT * FROM public.featured_articles'))
+})
+
+test('content helpers have fixed paths and relocated unaccent still produces slugs', async () => {
+  assert.equal((await db.query("SELECT n.nspname FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace WHERE e.extname = 'unaccent'")).rows[0].nspname, 'extensions')
+  assert.equal((await db.query("SELECT public.slugify('Ola mundo 2026') AS slug")).rows[0].slug, 'ola-mundo-2026')
+  const { rows } = await db.query(`SELECT proname, proconfig FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public' AND proname IN ('slugify', 'calculate_read_time', 'guard_published_at', 'check_price_interval_matches_product')`)
+  assert.equal(rows.length, 4)
+  assert.ok(rows.every(row => row.proconfig.some(setting => setting.startsWith('search_path=pg_catalog'))))
+  for (const role of ['anon', 'authenticated']) await as(role, a, async () => {
+    assert.equal((await db.query("SELECT public.slugify('Ola mundo') AS slug")).rows[0].slug, 'ola-mundo')
+  })
+})
+
+test('new application tables and functions require explicit browser grants', async () => {
+  await as(null, null, async () => {
+    await db.exec('CREATE TABLE public.grants_fixture (id integer); CREATE FUNCTION public.grants_fixture_fn() RETURNS integer LANGUAGE sql AS $$ SELECT 1 $$;')
+    for (const role of ['anon', 'authenticated', 'service_role']) {
+      assert.equal((await db.query("SELECT has_table_privilege($1, 'public.grants_fixture', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') AS allowed", [role])).rows[0].allowed, false)
+      assert.equal((await db.query("SELECT has_function_privilege($1, 'public.grants_fixture_fn()', 'EXECUTE') AS allowed", [role])).rows[0].allowed, false)
+    }
   })
 })
 
