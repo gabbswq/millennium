@@ -92,7 +92,10 @@ Endpoints desconhecidos ou ainda nao vinculados nao sao silenciosamente pagos.
    mas nao exigem KYC de comprador. Repasses nao estao habilitados no app.
 8. Se criacao ficar CREATING/UNCERTAIN, desligar novas tentativas e reconciliar
    no provedor pela idempotency key/metadata original. Nao apagar a reserva nem
-   criar outra sessao/conta. Ferramenta de conciliacao operacional ainda pendente.
+   criar outra sessao/conta. [Ferramenta de recuperacao](CHECKOUT_RECOVERY.md)
+   inspeciona por padrao e pode vincular explicitamente somente sessao aberta
+   de teste, com dados conferidos e compare-and-set. Sessao terminal sem
+   vinculo e recuperacao Connect continuam exigindo fluxo autorizado separado.
 
 ## Verificacao local reproduzivel
 
@@ -136,7 +139,7 @@ Referencias: [RLS e grants](https://supabase.com/docs/guides/database/postgres/r
 
 ## Operacao futura
 
-Faltam ensaios externos, reconciliacao operacional, monitoramento, reembolsos,
+Faltam ensaios externos, reconciliacao de casos terminais/Connect, monitoramento, reembolsos,
 restauracao e resposta a fraude antes de liberar producao. Nada desta versao
 habilita chave live, split/comissao, acesso pago legado ou aplicativo iOS.
 Checkout e cadastro testados localmente nao certificam seguranca absoluta.

@@ -2,6 +2,23 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Recuperacao de Checkout, 3 de outubro
+
+Feature checkout-recovery parte de develop a4caa5cc. Comando operacional
+payments:recover-checkout inspeciona um pedido/sessao por padrao, sem endpoint
+publico ou POST Stripe. --bind-open e explicito, somente para sessao aberta
+test-only conferida contra dono, UUID, metadata, preco/valor BRL e quantidade.
+PATCH usa compare-and-set de estado/timestamp e nunca marca paid. SDKs tem
+timeout de 10s e retries desativados; saida sem URLs/PII/credenciais.
+[Runbook](CHECKOUT_RECOVERY.md). Nenhuma dependencia, migration ou UI nova.
+
+Nao executar na nuvem sem autorizacao de operacao. Nenhuma credencial lida,
+.env editado ou escrita externa realizada neste incremento. Sessao terminal
+sem vinculo exige revisao/fluxo transacional separado, nao inventar URL ou
+marcar paid manualmente. Connect permanece separado. Supabase primario ainda
+aguarda autorizacao de migrations e atualizacao PostgreSQL; hospedagem/WAF,
+login JWT real e Checkout/webhooks externos nao foram homologados.
+
 ## Projeto Supabase identificado, 3 de outubro
 
 Gabriel indicou https://pywotovmlxzwwpawpaew.supabase.co. Conexao autorizada

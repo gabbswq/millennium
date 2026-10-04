@@ -2,7 +2,7 @@ name: Millennium Checkout and sellers
 on:
   push:
     branches: [develop, preview, main, 'feature/**']
-    paths: ['src/**', 'supabase/migrations/**', 'tests/payments/**', 'public/**', 'package*.json', 'tsconfig.json', 'next.config.mjs', 'eslint.config.mjs', '.github/workflows/payments-app.yml']
+    paths: ['src/**', 'scripts/payments/**', 'supabase/migrations/**', 'tests/payments/**', 'public/**', 'package*.json', 'tsconfig.json', 'next.config.mjs', 'eslint.config.mjs', '.github/workflows/payments-app.yml']
   pull_request:
     branches: [develop, preview, main]
   workflow_dispatch:
