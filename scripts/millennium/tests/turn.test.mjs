@@ -206,6 +206,48 @@ test('exit zero sem resposta nao finge sucesso; texto JSONL serve de fallback', 
   assert.match(fs.readFileSync(path.join(f.root, state.attempts.at(-1).artifacts, 'response.md'), 'utf8'), /Revisao/);
 });
 
+test('fallback nao sobrescreve uma resposta criada por outro escritor', async t => {
+  const f = fixture(t); start(f);
+  const write = fs.writeFileSync;
+  const winner = 'Resposta concorrente preservada.';
+  let injected = false;
+  fs.writeFileSync = (file, ...args) => {
+    if (!injected && typeof file === 'string' && path.basename(file) === 'response.md' && file.startsWith(f.store.dir + path.sep)) {
+      injected = true;
+      write(file, winner, { flag: 'wx', mode: 0o600 });
+    }
+    return write(file, ...args);
+  };
+  t.after(() => { fs.writeFileSync = write; });
+  const state = await simulated(f, 'plan', 'fallback');
+  assert.equal(injected, true);
+  assert.equal(state.task.status, 'aguardando_usuario');
+  const response = path.join(f.root, state.attempts.at(-1).artifacts, 'response.md');
+  assert.equal(fs.readFileSync(response, 'utf8'), winner);
+});
+
+test('fallback recusa symlink sem alterar o alvo e conclui o erro sem run.lock', { skip: process.platform === 'win32' }, async t => {
+  const f = fixture(t); start(f);
+  const outside = path.join(f.temp, 'outside.txt');
+  const write = fs.writeFileSync;
+  write(outside, 'outside fixture');
+  let injected = false;
+  fs.writeFileSync = (file, ...args) => {
+    if (!injected && typeof file === 'string' && path.basename(file) === 'response.md' && file.startsWith(f.store.dir + path.sep)) {
+      injected = true;
+      fs.symlinkSync(outside, file);
+    }
+    return write(file, ...args);
+  };
+  t.after(() => { fs.writeFileSync = write; });
+  const state = await simulated(f, 'plan', 'fallback');
+  assert.equal(injected, true);
+  assert.equal(state.task.status, 'bloqueada');
+  assert.match(state.attempts.at(-1).error, /resposta inseguro/);
+  assert.equal(fs.readFileSync(outside, 'utf8'), 'outside fixture');
+  assert.equal(f.store.read('run.lock'), null);
+});
+
 test('JSONL dividido dentro de caractere UTF-8 preserva texto da resposta', async t => {
   const f = fixture(t); start(f);
   const state = await simulated(f, 'plan', 'unicode');

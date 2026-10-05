@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { processIdentity } from '../scripts/millennium/store.mjs';
+import { readRegularFile } from '../scripts/millennium/files.mjs';
 import { LabError, statuses, idPattern } from './domain.mjs';
 
 function safePath(dir) {
@@ -25,9 +26,9 @@ export class Repository {
     this.token = randomUUID();
     this.acquire();
     try {
-      if (fs.existsSync(this.file)) {
-        if (fs.lstatSync(this.file).isSymbolicLink()) throw new Error('Registro de dados inseguro.');
-        this.state = JSON.parse(fs.readFileSync(this.file, 'utf8'));
+      const raw = readRegularFile(this.file, { missingOk: true });
+      if (raw !== null) {
+        this.state = JSON.parse(raw);
         if (this.state.schema !== 1 || this.state.mode !== mode || !Array.isArray(this.state.charges) ||
             !Array.isArray(this.state.events) || this.state.charges.some(c => !idPattern.test(c.id) || !statuses.has(c.status) || !Number.isSafeInteger(c.amountCents))) {
           throw new Error('Dados incompativeis. Preserve o registro antes de recuperar.');
@@ -63,10 +64,10 @@ export class Repository {
       throw error;
     }
     try {
-      if (!fs.existsSync(this.lockFile)) { this.claim(); return; }
-      if (fs.lstatSync(this.lockFile).isSymbolicLink()) throw new Error('Lock de dados inseguro.');
+      const raw = readRegularFile(this.lockFile, { missingOk: true });
+      if (raw === null) { this.claim(); return; }
       let lock;
-      try { lock = JSON.parse(fs.readFileSync(this.lockFile, 'utf8')); } catch { throw new Error('Lock invalido. Preserve os registros.'); }
+      try { lock = JSON.parse(raw); } catch { throw new Error('Lock invalido. Preserve os registros.'); }
       if (!Number.isSafeInteger(lock.pid) || lock.pid < 1 || !lock.identity || !lock.token) throw new Error('Lock invalido.');
       const owner = processIdentity(lock.pid);
       if (owner && (owner === 'alive' || owner === lock.identity)) throw new Error('Laboratorio ja aberto para esta pasta de dados.');
@@ -94,9 +95,10 @@ export class Repository {
   }
 
   close() {
-    if (!fs.existsSync(this.lockFile) || fs.lstatSync(this.lockFile).isSymbolicLink()) return;
     try {
-      const lock = JSON.parse(fs.readFileSync(this.lockFile, 'utf8'));
+      const raw = readRegularFile(this.lockFile, { missingOk: true });
+      if (raw === null) return;
+      const lock = JSON.parse(raw);
       if (lock.token === this.token) fs.unlinkSync(this.lockFile);
     } catch {}
   }

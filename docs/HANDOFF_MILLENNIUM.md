@@ -2,6 +2,27 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Hardening de arquivos locais, 5 de outubro
+
+Feature security-file-descriptors parte de develop 34354a02. Quatro falhas
+reproduzidas antes da correcao (Store/Pix/fingerprint seguindo symlink trocado,
+fallback sobrescrevendo resposta concorrente). Leitor compartilhado por FD,
+flags POSIX e identidade/tipo antes dos bytes; fallback exclusivo wx e falha
+registrada sem repetir provedor/alterar alvo externo. Nenhuma dependencia,
+migration, credencial, UI ou operacao cloud alterada.
+
+Ubuntu local: 44 executor/arquivos (12 novos) e 39 Pix, zero SKIP. Windows
+leitor: 6/7, um SKIP symlink; Pix 38/39, EPERM em fixture de symlink antiga.
+Sem esconder falha ou elevar privilegios. Codigo db4ef4cd passou no
+[CI Pix](https://github.com/gabbswq/millennium/actions/runs/37263656254) e
+[CI executor](https://github.com/gabbswq/millennium/actions/runs/37263656249):
+44 executor, 39 API, 19 SQL por versao 17/18 e 12 navegador, build aprovado.
+114 casos unicos, sem contar repeticoes de matriz/workflow. CodeQL na ref da
+feature passou de 11 para 5 abertos; IDs 6-11 ausentes, sem supressao/exclusao.
+Integrar so develop; [evidencia e limites](SECURITY_FILE_HARDENING.md).
+Nao atribuir a isso protecao de DDoS, isolamento de processo hostil ou teto
+financeiro. Feature vercel-homologation continua separada e aguarda login humano.
+
 ## Meta de seguranca: APIs e CI, 4 de outubro
 
 Gabriel pediu foco defensivo usando Anthropic-Cybersecurity-Skills. Projeto

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { project, requireFeature, fingerprint, git } from './project.mjs';
+import { readRegularFile } from './files.mjs';
 
 const now = () => new Date().toISOString();
 const states = new Set(['planejada', 'executando', 'aguardando_usuario', 'em_revisao', 'precisa_correcao', 'concluida', 'bloqueada', 'cancelada', 'interrompida']);
@@ -43,9 +44,9 @@ export class Store {
   read(name) {
     if (fs.existsSync(this.dir) && fs.lstatSync(this.dir).isSymbolicLink()) throw new Error('.millennium nao pode ser um link simbolico.');
     const file = this.file(name);
-    if (!fs.existsSync(file)) return null;
-    if (fs.lstatSync(file).isSymbolicLink()) throw new Error(`Registro inseguro: ${name}.`);
-    try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
+    const raw = readRegularFile(file, { missingOk: true });
+    if (raw === null) return null;
+    try { return JSON.parse(raw); }
     catch { throw new Error(`Registro ${name} invalido. Preserve o arquivo antes de recuperar.`); }
   }
 
