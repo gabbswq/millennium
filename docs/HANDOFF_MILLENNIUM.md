@@ -38,7 +38,23 @@ Checkpoint: codigo b49752ee integrado localmente em develop sem conflitos.
 Publicacao e checks do merge pendentes de confirmacao remota. Manter main
 intacta e preservar a documentacao de login da feature vercel-homologation.
 Nao atribuir a isso protecao de DDoS, isolamento de processo hostil ou teto
-financeiro. Feature vercel-homologation continua separada e aguarda login humano.
+financeiro. Preflight documental Vercel integrado; runtime aguarda login humano.
+
+## Homologacao Vercel escolhida, 5 de outubro
+
+Incremento de seguranca integrado em develop 34354a028c29d0baeb4c07d7bd4e3c36c05820fb.
+[CI integrado](https://github.com/gabbswq/millennium/actions/runs/37261387963)
+e [CodeQL integrado](https://github.com/gabbswq/millennium/actions/runs/37261387945)
+aprovados; mesmos 11 alertas abertos confirmados por API na ref develop.
+Main remoto segue 3516b043c1be906e6d7c2631d7de9be74cf628cb, preview ausente.
+
+Gabriel escolheu Vercel, sem plano pago. Conexao do app confirmou gabbswq/hobby,
+nenhum team e nenhum projeto na busca millennium. CLI 62.2.0 em cache local,
+sem instalacao global/dependencia, whoami Logged out. Nao extrair token do app
+nem publicar main usando helper Git. Precisa login humano do CLI; procedimento
+e gates em [VERCEL_HOMOLOGATION.md](VERCEL_HOMOLOGATION.md). Nenhum deploy,
+.env, secret, trial/add-on ou recurso pago criado. Feature vercel-homologation
+registra preflight; sem QA humana ou ensaio Auth/Stripe real ainda.
 
 ## Meta de seguranca: APIs e CI, 4 de outubro
 
