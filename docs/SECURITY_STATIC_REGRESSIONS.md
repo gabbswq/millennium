@@ -30,7 +30,7 @@ de escape de JSON.stringify ou de exploracao de um provedor de producao.
 - [x] Cancelamento forcado especifico revalidado com caminho literal especial.
 - [x] Capturas desktop/mobile inspecionadas, resultado sem overflow/markup.
 - [x] Build landing e checker reais: JS 116387 bytes, gzip 46061/153600 bytes.
-- [ ] CI do codigo final e CodeQL da feature.
+- [x] CI do codigo final e CodeQL da feature.
 - [ ] Integracao develop e alertas consultados explicitamente nessa ref.
 
 Termo normal do teste foi corrigido de claude (dois artigos existentes) para
@@ -40,6 +40,16 @@ inicial de import nao foi contada como reproducao da medicao divergente.
 Dependencias locais da landing estavam ausentes; restauradas pelo lockfile,
 ignore-scripts, sem alteracao de versoes. Build passou com warning de content
 Tailwind; configuracao visual nao foi alterada neste incremento.
+
+Codigo dd3795cf95688f7de9280928202360f0dda95862 aprovado no
+[CI seguranca](https://github.com/gabbswq/millennium/actions/runs/37305524147)
+e [executor](https://github.com/gabbswq/millennium/actions/runs/37305524100):
+45 executor/arquivos, quatro bundle e dez navegador, 59 casos unicos.
+Build/checker landing confirmam gzip JS 46061/153600 bytes. CodeQL da mesma
+revisao: analise 1892950884, results_count=0, error/warning vazios.
+API alerts com ref=refs/heads/feature/security-static-regressions e state=open
+retornou lista vazia. Sem exclusoes/supressoes ou fechamento manual. Confirmar
+a ref develop apos integrar; nao inferir estado da branch main.
 
 Saida do Playwright isolada em test-results/security-search, nao no diretorio
 que compartilha outros caches. CLI agent-browser nao estava disponivel;

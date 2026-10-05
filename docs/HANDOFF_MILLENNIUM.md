@@ -2,7 +2,7 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
-## Tres alertas restantes em correcao, 5 de outubro
+## Tres alertas restantes corrigidos na feature, 5 de outubro
 
 Feature security-static-regressions parte de develop 6055fb6d. Busca renderiza
 texto/DOM seguro, fixture de descendente usa arquivo/argv e medicao de bundle
@@ -13,7 +13,12 @@ de artigos, layout, credenciais, migrations, planos ou pagamentos.
 Local: dez testes de busca desktop/mobile (Chrome existente), quatro Node de
 bundle Windows/Ubuntu, 45 executor Ubuntu e caso de encerramento forcado com
 caminho literal aprovados. Capturas inspecionadas. Build/checker landing passam
-(gzip JS 46061 de 153600 bytes); CI/CodeQL e integracao ainda pendentes.
+(gzip JS 46061 de 153600 bytes). Codigo dd3795cf aprovado no
+[CI seguranca](https://github.com/gabbswq/millennium/actions/runs/37305524147)
+e [executor](https://github.com/gabbswq/millennium/actions/runs/37305524100):
+59 casos unicos. CodeQL analise 1892950884: zero resultados, sem error/warning;
+consulta explicita da ref da feature/state=open retornou vazio. Sem supressao.
+Integracao e consulta da ref develop ainda pendentes.
 [Evidencia, limites e roteiro](SECURITY_STATIC_REGRESSIONS.md). Nao inferir
 zero alertas nem seguranca completa antes da consulta da ref final. Meta ativa;
 Vercel depende de login humano, main/preview e servicos remotos preservados.

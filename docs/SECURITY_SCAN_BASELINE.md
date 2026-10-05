@@ -75,8 +75,14 @@ Main preservada; nenhuma promocao preview/release.
 
 ## Proximo turno
 
-Primeiro: renderizacao DOM segura e teste de busca sem regressao visual.
-Depois: fixture sem codigo gerado e medicao do bundle a partir do mesmo buffer.
+Feature security-static-regressions corrigiu busca DOM, fixture com codigo
+gerado e medicao de bundle. Codigo dd3795cf: [CI](https://github.com/gabbswq/millennium/actions/runs/37305524147)
+e [executor](https://github.com/gabbswq/millennium/actions/runs/37305524100)
+aprovados, 59 casos unicos. Analise CodeQL 1892950884 tem zero resultados;
+API da ref da feature/state=open retorna vazio, sem supressao/exclusao.
+[Provas e limites](SECURITY_STATIC_REGRESSIONS.md). Confirmar integracao develop
+e sua analise/alertas antes de usar esse resultado como estado daquela branch.
+
 Leitor por descriptor/fallback e limites de ingresso Fastify ja integrados;
 seus limites permanecem documentados, sem declarar isolamento de processos
 hostis, protecao de toda a internet ou teto financeiro. Reavaliar CodeQL na
