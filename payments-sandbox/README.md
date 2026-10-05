@@ -125,6 +125,16 @@ Capacidade local: 1.000 cobrancas e 10.000 eventos, sem limpeza automatica.
 A lista nao retransmite imagens; somente o detalhe selecionado carrega o QR.
 O poll da tela consulta apenas registros locais, nunca o provedor.
 
+Cada listener admite ate 120 requisicoes por janela de 60 segundos, incluindo
+assets, URLs inexistentes e origens/tokens invalidos. O painel limita tambem
+mutacoes a 20 por janela, compartilhadas entre rotas; webhook possui apenas o
+limite de ingresso do respectivo listener. Excesso responde 429 e Retry-After
+antes do corpo, disco ou provedor. Aguarde o prazo; nao repita POST automaticamente.
+Abas/processos compartilham o orcamento do painel, mas o receptor separado tem
+janela independente. Reiniciar o processo zera contadores: nao e quota duravel,
+WAF, protecao de toda a internet nem teto de cobranca. Nao exponha o painel.
+[Evidencia, concorrencia e limites](../docs/SECURITY_INGRESS_LIMITS.md).
+
 | Arquivo | Responsabilidade |
 | --- | --- |
 | `web/` | Formulario, tabela, QR, estados e eventos |

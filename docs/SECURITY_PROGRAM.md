@@ -100,9 +100,15 @@ nao persiste credenciais. Sem schedule/auto-merge/deploy. Job verde significa
 analise executada, nao zero alertas: revisar SARIF/alertas e registrar a revisao.
 Nao criar bloqueio de merge por administracao sem autorizacao humana.
 
-[Baseline e triagem dos onze alertas ainda abertos](SECURITY_SCAN_BASELINE.md).
+[Baseline historica e triagem atual](SECURITY_SCAN_BASELINE.md).
 CI do codigo 216f0357 passou com 131 casos unicos; o incremento HTTP foi
 verificado, mas a meta ampla de seguranca continua aberta.
+
+Checkpoint 5 de outubro: hardening de arquivos integrado e verificado em
+develop 4e4f9c37; seis alertas fixed e cinco open na API CodeQL dessa ref.
+Feature security-ingress-limit acrescenta limites Fastify locais; [controle,
+regressoes e gates](SECURITY_INGRESS_LIMITS.md). Ainda nao e protecao de
+fatura/ingresso hospedado nem autorizacao de pagamentos reais.
 
 ## Dependencias: evidencia local
 

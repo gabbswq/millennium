@@ -2,6 +2,22 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Limites Fastify em desenvolvimento, 5 de outubro
+
+Feature security-ingress-limit parte de develop 4ad7f655. Orcamentos por
+listener (120/60s) e mutacoes (20/60s), antes de corpo/handlers e inclusive
+404; sem confiar em headers/IP do cliente. Receptor independente e ainda
+privado. Plugin oficial fixado; snapshot do store corrige recusa excessiva
+em rajada concorrente sem reimplementar janela/cache. Nenhuma credencial,
+migration, UI, plano ou chamada externa de pagamentos.
+
+Local: 51 API/provedor/receptor Ubuntu e 12 regressoes Windows, zero SKIP;
+TCP real bloqueia antes do corpo. Build aprovado e audit producao local zero
+alertas conhecidos. Navegador Windows ausente; download oficial terminou
+em timeout, nao equivale a fluxos aprovados. CI/CodeQL e integracao develop
+ainda pendentes; [evidencia e limites](SECURITY_INGRESS_LIMITS.md).
+Vercel aguarda login humano, meta continua ativa e main/preview intactas.
+
 ## Estado integrado verificado, 5 de outubro
 
 Develop publicado em 4e4f9c372211b1d8d4deabfeb7b8e2b34c3d8354, incluindo
