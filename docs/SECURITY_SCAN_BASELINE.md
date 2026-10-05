@@ -68,15 +68,19 @@ Feature security-ingress-limit, codigo 56a4f964: [CI](https://github.com/gabbswq
 e [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37302691853) aprovados.
 Consulta explicita da ref da feature: tres open (IDs 1, 2, 5; 2 high/1 medium).
 IDs 3/4 ausentes nessa ref; [prova de limites, concorrencia e superficie](SECURITY_INGRESS_LIMITS.md).
-Sem supressao/exclusao. Integracao e estado da ref develop ainda devem ser conferidos.
+Sem supressao/exclusao. Integrado em develop 0dc9e9ca: [CI](https://github.com/gabbswq/millennium/actions/runs/37303081987)
+e [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37303082108) aprovados.
+API dessa ref confirma IDs 3/4 fixed e tres open (IDs 1/2/5; 2 high/1 medium).
+Main preservada; nenhuma promocao preview/release.
 
 ## Proximo turno
 
 Primeiro: renderizacao DOM segura e teste de busca sem regressao visual.
-Depois: limite de ingresso/backpressure do Fastify, fixture sem codigo gerado
-e medicao do bundle a partir do mesmo buffer. Leitor por descriptor/fallback
-ja integrado; seus limites permanecem documentados, sem declarar isolamento
-de processos hostis. Reavaliar CodeQL na mesma ref apos teste/scanner.
+Depois: fixture sem codigo gerado e medicao do bundle a partir do mesmo buffer.
+Leitor por descriptor/fallback e limites de ingresso Fastify ja integrados;
+seus limites permanecem documentados, sem declarar isolamento de processos
+hostis, protecao de toda a internet ou teto financeiro. Reavaliar CodeQL na
+mesma ref apos teste/scanner.
 Nao reescrever o portfolio ou misturar novas features com essas correcoes.
 
 Gates externos permanecem: patch PostgreSQL autorizado e recuperavel,

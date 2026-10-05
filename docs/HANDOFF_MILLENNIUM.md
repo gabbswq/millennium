@@ -2,7 +2,7 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
-## Limites Fastify validados na feature, 5 de outubro
+## Limites Fastify integrados, 5 de outubro
 
 Feature security-ingress-limit parte de develop 4ad7f655. Orcamentos por
 listener (120/60s) e mutacoes (20/60s), antes de corpo/handlers e inclusive
@@ -18,7 +18,11 @@ em timeout, nao equivale a fluxos locais aprovados. Codigo 56a4f964 aprovado
 no [CI](https://github.com/gabbswq/millennium/actions/runs/37302691893): 127 casos
 unicos, incluindo os 12 fluxos de navegador e SQL 17/18. [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37302691853)
 da ref da feature mostra tres open (IDs 1, 2, 5; 2 high/1 medium), sem supressao.
-Integrar apenas develop e confirmar seus checks/alertas; [evidencia e limites](SECURITY_INGRESS_LIMITS.md).
+Integracao publicada em develop 0dc9e9ca255ce3c1fed9ec5df9acb49ceebc84f6.
+[CI integrado](https://github.com/gabbswq/millennium/actions/runs/37303081987) e
+[CodeQL integrado](https://github.com/gabbswq/millennium/actions/runs/37303082108)
+aprovados, 127 casos unicos. API da ref develop: IDs 3/4 fixed, IDs 1/2/5
+open (2 high/1 medium), sem supressao; [evidencia e limites](SECURITY_INGRESS_LIMITS.md).
 Vercel aguarda login humano, meta continua ativa e main/preview intactas.
 
 ## Estado integrado verificado, 5 de outubro

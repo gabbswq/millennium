@@ -106,8 +106,10 @@ verificado, mas a meta ampla de seguranca continua aberta.
 
 Checkpoint 5 de outubro: hardening de arquivos integrado e verificado em
 develop 4e4f9c37; seis alertas fixed e cinco open na API CodeQL dessa ref.
-Feature security-ingress-limit acrescenta limites Fastify locais; [controle,
-regressoes e gates](SECURITY_INGRESS_LIMITS.md). Ainda nao e protecao de
+Feature security-ingress-limit acrescenta limites Fastify locais, integrados
+em develop 0dc9e9ca: 127 casos e CodeQL aprovados; IDs 3/4 fixed e tres open
+na consulta da ref develop. [Controle, regressoes e gates](SECURITY_INGRESS_LIMITS.md).
+Ainda nao e protecao de
 fatura/ingresso hospedado nem autorizacao de pagamentos reais.
 
 ## Dependencias: evidencia local
