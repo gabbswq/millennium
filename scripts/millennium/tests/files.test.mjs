@@ -54,6 +54,21 @@ test('descriptor identity mismatch is refused before reading bytes', t => {
   assert.equal(reads, 0);
 });
 
+test('adjacent identities above Number precision cannot be considered the same file', t => {
+  const { file } = fixture(t);
+  const fstat = fs.fstatSync;
+  const lstat = fs.lstatSync;
+  const identity = 9007199254740992n;
+  fs.fstatSync = (fd, options) => Object.assign(fstat(fd, options), {
+    ino: options?.bigint ? identity : Number(identity),
+  });
+  fs.lstatSync = (value, options) => Object.assign(lstat(value, options), {
+    ino: options?.bigint ? identity + 1n : Number(identity + 1n),
+  });
+  t.after(() => { fs.fstatSync = fstat; fs.lstatSync = lstat; });
+  assert.throws(() => readRegularFile(file), /inseguro/);
+});
+
 test('a path replaced after validation cannot redirect the open descriptor', t => {
   const { root, file } = fixture(t);
   const read = fs.readFileSync;

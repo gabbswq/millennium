@@ -6,8 +6,8 @@ export function readRegularFile(file, { encoding = 'utf8', missingOk = false } =
   try {
     fd = fs.openSync(file, fs.constants.O_RDONLY |
       (fs.constants.O_NOFOLLOW ?? 0) | (fs.constants.O_NONBLOCK ?? 0));
-    const opened = fs.fstatSync(fd);
-    const entry = fs.lstatSync(file);
+    const opened = fs.fstatSync(fd, { bigint: true });
+    const entry = fs.lstatSync(file, { bigint: true });
     if (!opened.isFile() || !entry.isFile() || opened.dev !== entry.dev || opened.ino !== entry.ino) {
       throw new Error('Registro de arquivo inseguro. Preserve os registros.');
     }
