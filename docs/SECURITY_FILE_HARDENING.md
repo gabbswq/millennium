@@ -20,7 +20,7 @@ ensaios tambem era sintetico, dentro da pasta temporaria exclusiva do teste.
 
 Leitor comum files.mjs abre em modo somente leitura, usa O_NOFOLLOW/O_NONBLOCK
 quando disponiveis, valida arquivo regular e identidade dev/ino da entrada
-contra o descritor e le pelo descritor ja aberto. Fecha em sucesso/erro.
+contra o descritor usando BigInt e le pelo descritor ja aberto. Fecha em sucesso/erro.
 Arquivo ausente continua opcional onde ja era; symlink pendente nao e confundido
 com entrada ausente. JSON corrompido nao e sobrescrito automaticamente.
 
@@ -35,11 +35,11 @@ timeout de dez minutos. Nenhuma dependencia nova.
 ## Verificacao
 
 - [x] Reproduzir quatro falhas antes da implementacao.
-- [x] Suite local Ubuntu: 44 casos de executor/arquivos, zero SKIP; 12 novos.
+- [x] Suite local Ubuntu final: 45 casos de executor/arquivos, zero SKIP; 13 novos.
 - [x] Suite local Pix Ubuntu: 39 casos HTTP/provedor/receptor, zero SKIP.
-- [x] Leitor Windows: seis casos aprovados, um SKIP explicito de symlink.
-- [x] CI de executor/Pix, build/navegador e SQL em PostgreSQL 17/18.
-- [x] Nova analise CodeQL e comparacao de alertas na mesma ref.
+- [x] Leitor Windows final: sete casos aprovados, um SKIP explicito de symlink.
+- [ ] CI final apos BigInt: executor/Pix, build/navegador e SQL 17/18.
+- [ ] CodeQL da revisao final apos BigInt e comparacao na mesma ref.
 - [ ] Integrar somente develop apos evidencia; main/preview preservadas.
 
 Suíte Pix Windows: 38/39; o teste antigo de symlink falhou EPERM na criacao do
@@ -59,6 +59,12 @@ contra onze da baseline. Os IDs 6-11 nao aparecem na nova lista dessa ref.
 Isso nao afirma fechamento global/default branch nem seguranca completa.
 Restam IDs 1 (DOM/innerHTML), 2 (fixture com codigo gerado), 3/4 (rate limit
 do Fastify) e 5 (medicao de bundle com stat/read separados).
+
+Na revisao final, um quinto caso foi reproduzido: identidades adjacentes acima
+de 2^53 se confundiam em Number. fstat/lstat agora usam bigint:true; o novo
+teste passou apos a correcao. Local final: 45/45 no Ubuntu, leitor Windows
+7/8 com SKIP de symlink. A evidencia db4ef4cd acima permanece historica;
+CI/SAST precisam ser confirmados para este ajuste antes da publicacao do merge.
 
 ## Limites
 

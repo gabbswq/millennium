@@ -20,6 +20,11 @@ Sem esconder falha ou elevar privilegios. Codigo db4ef4cd passou no
 114 casos unicos, sem contar repeticoes de matriz/workflow. CodeQL na ref da
 feature passou de 11 para 5 abertos; IDs 6-11 ausentes, sem supressao/exclusao.
 Integrar so develop; [evidencia e limites](SECURITY_FILE_HARDENING.md).
+
+Revisao final reproduziu perda de precisao de inode acima de 2^53. Leitor usa
+Stats BigInt; teste novo aprovado. Local final: 45 executor Ubuntu, zero SKIP;
+leitor Windows 7/8, um SKIP. CI/SAST desse ajuste ainda precisam ser confirmados.
+Integracao anterior esta somente local em develop, ainda nao publicada.
 Nao atribuir a isso protecao de DDoS, isolamento de processo hostil ou teto
 financeiro. Feature vercel-homologation continua separada e aguarda login humano.
 
