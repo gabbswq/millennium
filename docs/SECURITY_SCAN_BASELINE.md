@@ -51,6 +51,12 @@ Nao esconder caminhos/fixtures da analise para produzir um resultado verde.
 O incremento desta branch corrige outro conjunto reproduzido de problemas HTTP;
 nao afirma que resolveu este backlog inteiro.
 
+Checkpoint posterior 2026-10-05: feature/security-file-descriptors reproduziu
+quatro falhas de arquivo, implementou leitor por FD/fallback exclusivo e foi
+validada em CI. CodeQL dessa ref retorna cinco alertas abertos; IDs 6-11
+ausentes. Sem fechamento manual/exclusoes. A baseline acima continua historica;
+[evidencia e limitacoes da correcao](SECURITY_FILE_HARDENING.md).
+
 ## Proximo turno
 
 Primeiro: renderizacao DOM segura e teste de busca sem regressao visual.

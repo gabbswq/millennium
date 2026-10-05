@@ -13,8 +13,13 @@ migration, credencial, UI ou operacao cloud alterada.
 
 Ubuntu local: 44 executor/arquivos (12 novos) e 39 Pix, zero SKIP. Windows
 leitor: 6/7, um SKIP symlink; Pix 38/39, EPERM em fixture de symlink antiga.
-Sem esconder falha ou elevar privilegios. CI/SAST/integracao ainda pendentes;
-[evidencia, limites de pais/Windows e criterios](SECURITY_FILE_HARDENING.md).
+Sem esconder falha ou elevar privilegios. Codigo db4ef4cd passou no
+[CI Pix](https://github.com/gabbswq/millennium/actions/runs/37263656254) e
+[CI executor](https://github.com/gabbswq/millennium/actions/runs/37263656249):
+44 executor, 39 API, 19 SQL por versao 17/18 e 12 navegador, build aprovado.
+114 casos unicos, sem contar repeticoes de matriz/workflow. CodeQL na ref da
+feature passou de 11 para 5 abertos; IDs 6-11 ausentes, sem supressao/exclusao.
+Integrar so develop; [evidencia e limites](SECURITY_FILE_HARDENING.md).
 Nao atribuir a isso protecao de DDoS, isolamento de processo hostil ou teto
 financeiro. Feature vercel-homologation continua separada e aguarda login humano.
 
