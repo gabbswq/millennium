@@ -37,7 +37,7 @@ HTTP real com corpo declarado mas nao enviado e recuperacao de mutacoes.
 - [x] Build local aprovado; JavaScript da tela 12111 bytes, sem alteracao da UI.
 - [x] npm audit --omit=dev no laboratorio: zero alertas conhecidos.
 - [x] CI do codigo final, SQL nativo, navegador e CodeQL na ref da feature.
-- [ ] Integracao develop e verificacao dos checks/alertas da mesma ref.
+- [x] Integracao develop e verificacao dos checks/alertas da mesma ref.
 
 Requests recusados nao chamam provedor, nao criam registros, nao leem assets
 nem chegam ao preParsing. Headers inventados e troca de endereco/URL nao
@@ -52,7 +52,13 @@ SQL/PGlite. Build e audit omit=dev aprovados. [CodeQL](https://github.com/gabbsw
 concluido; API consultada com ref=refs/heads/feature/security-ingress-limit:
 tres alertas open (IDs 1, 2, 5; 2 high, 1 medium), contra cinco da base develop.
 IDs 3/4 nao aparecem nessa ref, sem exclusao/supressao/fechamento manual.
-Confirmar novamente a ref develop apos integrar; nao inferir estado de main.
+Checkpoint integrado: develop 0dc9e9ca255ce3c1fed9ec5df9acb49ceebc84f6.
+[CI Pix integrado](https://github.com/gabbswq/millennium/actions/runs/37303081987)
+e [CodeQL integrado](https://github.com/gabbswq/millennium/actions/runs/37303082108)
+aprovados; mesmos 127 casos e audit producao zero alertas conhecidos. API
+consultada com ref=refs/heads/develop: IDs 3/4 fixed, IDs 1/2/5 open (2 high,
+1 medium); IDs 6-11 continuam fixed. Main remoto preservado em 3516b043c1be906e6d7c2631d7de9be74cf628cb,
+preview ausente. Nenhuma release, deploy, mudanca de plano ou pagamento real.
 
 Navegador Windows nao estava instalado; tentativa oficial de download no cache
 privado do workspace falhou por timeout de rede. Os 12 testes visuais locais
@@ -71,7 +77,7 @@ Painel continua privado/loopback; receptor nao foi exposto e tunnel nao autoriza
 
 WAF, limites financeiros e Auth/Stripe TEST externos exigem hospedagem e
 homologacao. Login Vercel ainda depende de Gabriel. Nao certificar seguranca
-ou encerrar a meta por testes verdes; tres alertas CodeQL seguem abertos na feature.
+ou encerrar a meta por testes verdes; tres alertas CodeQL seguem abertos em develop.
 
 ## Fontes primarias
 
