@@ -2,6 +2,10 @@
 
 This document defines basic security rules for Millennium.
 
+The current defensive scope, threat model, reviewed skill references and release
+gates are recorded in [SECURITY_PROGRAM.md](SECURITY_PROGRAM.md). Local tests and
+successful scanning do not certify the hosted payment system.
+
 ## Core rule
 
 Never commit secrets.

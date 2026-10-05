@@ -2,6 +2,34 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Meta de seguranca: APIs e CI, 4 de outubro
+
+Gabriel pediu foco defensivo usando Anthropic-Cybersecurity-Skills. Projeto
+comunitario, nao da Anthropic; tres guias revisados na revisao 54a79883,
+sem instalar a biblioteca ou executar seus scripts. Novo modelo de ameacas,
+criterios e gates em [SECURITY_PROGRAM.md](SECURITY_PROGRAM.md).
+
+Feature security-api-bounds parte de develop e9387f3c. Quatro testes falharam
+antes da correcao: corpo sem deadline, cancelamento travado, desconexao ignorada
+e 429 sem Retry-After. Leitura agora tem prazo total 5s, abort/cancel/liberacao,
+bytes preservados e limites anteriores. Sync-provider limitado antes de ler;
+429 local informa janela real. Dez testes novos, sem novas dependencias/migrations.
+Patches/minors compativeis no lockfile reduziram audit completo de 35 para
+7 entradas high dev/transitivas; audit completo nao esta aprovado. Nao usar
+force/downgrade/migracao Tailwind major; risco e tratamento no programa.
+CodeQL JS/TS adicionado em CI, SHAs oficiais fixos, sem agenda ou segredos.
+Codigo 216f0357 aprovado no [CI](https://github.com/gabbswq/millennium/actions/runs/37214121308):
+67 dominio/auth, 40 SQL nativos por versao (17/18, zero SKIP), 12 navegador,
+12 CAPTCHA, lint/build e audit producao zero alertas conhecidos. 131 casos
+unicos, nao somar matriz/PGlite. [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37214121334)
+executou e encontrou 11 alertas abertos, 10 high/1 medium. Trechos revisados,
+sem supressoes ou reproducao ainda; [triagem e proximo turno](SECURITY_SCAN_BASELINE.md).
+Integrar so develop; esse baseline nao e aceite humano de seguranca ou release.
+
+Nenhuma operacao cloud/pentest, credencial, plano ou pagamento alterado.
+Main/preview preservadas. Supabase schema ja concluido na etapa abaixo;
+patch Postgres, WAF/orcamento, Auth real e Stripe TEST externo seguem gates.
+
 ## Schema Supabase autorizado, 4 de outubro
 
 Gabriel autorizou tabelas/permissoes em pywotovmlxzwwpawpaew, sem mudar plano
