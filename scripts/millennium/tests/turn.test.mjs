@@ -15,9 +15,9 @@ const fake = fileURLToPath(new URL('./fake-provider.mjs', import.meta.url));
 const cli = fileURLToPath(new URL('../cli.mjs', import.meta.url));
 const output = () => ({ text: '', write(chunk) { this.text += chunk; } });
 
-function fixture(t, branch = 'feature/test') {
+function fixture(t, branch = 'feature/test', rootName = 'project') {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'millennium-test-'));
-  const root = path.join(temp, 'project');
+  const root = path.join(temp, rootName);
   fs.mkdirSync(root);
   const g = (...args) => execFileSync('git', ['-C', root, '-c', 'core.hooksPath=/dev/null',
     '-c', 'commit.gpgsign=false', '-c', 'user.name=Millennium Test', '-c', 'user.email=test@example.invalid', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -304,7 +304,7 @@ test('stop encerra tambem descendentes que herdam o grupo de processos', async t
 });
 
 test('stop espera o encerramento forcado de descendente que ignora SIGTERM', async t => {
-  const f = fixture(t); start(f);
+  const f = fixture(t, 'feature/test', 'project $ & (literal)'); start(f);
   const pending = simulated(f, 'plan', 'stubborn-tree');
   await waitFor(() => {
     const attempt = f.store.state().attempts[0];

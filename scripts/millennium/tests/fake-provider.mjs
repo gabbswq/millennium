@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const scenario = process.argv[2];
 const args = process.argv.slice(3);
@@ -9,10 +10,8 @@ event({ type: 'thread.started', thread_id: 'fixture-thread' });
 if (['hang', 'tree', 'stubborn-tree'].includes(scenario)) {
   if (scenario !== 'hang') {
     const dir = path.dirname(args[args.indexOf('--output-last-message') + 1]);
-    const code = scenario === 'stubborn-tree'
-      ? `process.on('SIGTERM',()=>{}); require('fs').writeFileSync(${JSON.stringify(path.join(dir, 'descendant.ready'))}, 'ready'); setInterval(()=>{},1000)`
-      : 'setInterval(()=>{},1000)';
-    const descendant = spawn(process.execPath, ['-e', code], { stdio: 'ignore' });
+    const script = fileURLToPath(new URL('./fake-descendant.mjs', import.meta.url));
+    const descendant = spawn(process.execPath, [script, scenario, path.join(dir, 'descendant.ready')], { stdio: 'ignore' });
     fs.writeFileSync(path.join(dir, 'descendant.pid'), String(descendant.pid));
   }
   setInterval(() => {}, 1000);

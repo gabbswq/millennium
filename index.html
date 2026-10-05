@@ -1625,7 +1625,7 @@
       newsCards.forEach(card => {
         allArticles.push({
           title: card.querySelector('.card-title').textContent,
-          cat: card.dataset.category,
+          cat: card.dataset.category ?? '',
           element: card
         });
       });
@@ -1638,7 +1638,7 @@
       function closeSearch() {
         searchOverlay.classList.remove('active');
         searchInput.value = '';
-        searchResults.innerHTML = '';
+        searchResults.replaceChildren();
       }
 
       document.addEventListener('keydown', (e) => {
@@ -1651,20 +1651,35 @@
 
       searchInput.addEventListener('input', () => {
         const q = searchInput.value.toLowerCase().trim();
-        if (!q) { searchResults.innerHTML = ''; return; }
+        if (!q) { searchResults.replaceChildren(); return; }
 
         const filtered = allArticles.filter(a =>
           a.title.toLowerCase().includes(q)
         );
 
-        searchResults.innerHTML = filtered.length
-          ? filtered.map(a => `
-              <div class="search-result-item">
-                <div class="sr-cat cat-${a.cat}">[${a.cat.toUpperCase()}]</div>
-                <div class="sr-title">${a.title}</div>
-              </div>
-            `).join('')
-          : '<p style="color: var(--text-secondary); margin-top: 20px; font-size: 14px;">Nenhum resultado encontrado.</p>';
+        const results = document.createDocumentFragment();
+        filtered.forEach(a => {
+          const item = document.createElement('div');
+          item.className = 'search-result-item';
+          const category = document.createElement('div');
+          category.className = 'sr-cat';
+          if (['ia', 'finance', 'web3', 'startups', 'tech'].includes(a.cat)) {
+            category.classList.add(`cat-${a.cat}`);
+          }
+          category.textContent = `[${a.cat.toUpperCase()}]`;
+          const title = document.createElement('div');
+          title.className = 'sr-title';
+          title.textContent = a.title;
+          item.append(category, title);
+          results.append(item);
+        });
+        if (!filtered.length) {
+          const empty = document.createElement('p');
+          Object.assign(empty.style, { color: 'var(--text-secondary)', marginTop: '20px', fontSize: '14px' });
+          empty.textContent = 'Nenhum resultado encontrado.';
+          results.append(empty);
+        }
+        searchResults.replaceChildren(results);
       });
 
       /* === 3. INTERSECTION OBSERVER — SCROLL ANIMATIONS === */
