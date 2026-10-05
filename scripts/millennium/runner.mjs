@@ -5,6 +5,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { StringDecoder } from 'node:string_decoder';
 import { finished } from 'node:stream/promises';
 import { diffEvidence, fingerprint } from './project.mjs';
+import { readRegularFile } from './files.mjs';
 
 export function resolveCodex({ searchPath = process.env.PATH ?? '', home = os.homedir() } = {}) {
   for (const dir of [...searchPath.split(path.delimiter).filter(Boolean), path.join(home, '.local', 'bin')]) {
@@ -158,10 +159,18 @@ export async function run(store, mode, { approved = false, model, script, timeou
     await Promise.all([finished(stdout).catch(error => { spawnError = error; }),
       finished(stderr).catch(error => { spawnError = error; })]);
   }
-  if (mode !== 'check' && !fs.existsSync(responseFile) && messages.length) {
-    fs.writeFileSync(responseFile, messages.join('\n\n') + '\n', { mode: 0o600 });
+  let hasResponse = mode === 'check';
+  if (mode !== 'check') {
+    try {
+      if (messages.length) {
+        try { fs.writeFileSync(responseFile, messages.join('\n\n') + '\n', { flag: 'wx', mode: 0o600 }); }
+        catch (error) { if (error.code !== 'EEXIST') throw error; }
+      }
+      hasResponse = Boolean(readRegularFile(responseFile, { missingOk: true })?.trim());
+    } catch {
+      spawnError = new Error('Arquivo de resposta inseguro ou indisponivel. Preserve os registros.');
+    }
   }
-  const hasResponse = mode === 'check' || (fs.existsSync(responseFile) && fs.readFileSync(responseFile, 'utf8').trim().length > 0);
   const unchanged = fingerprint(store.info.root) === attempt.before_fingerprint;
   const success = exitCode === 0 && !spawnError && hasResponse && (mode === 'check' || completed) &&
     (mode === 'work' || mode === 'check' || unchanged);

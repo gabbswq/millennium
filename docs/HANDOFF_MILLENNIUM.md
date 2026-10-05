@@ -2,6 +2,22 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Hardening de arquivos locais, 5 de outubro
+
+Feature security-file-descriptors parte de develop 34354a02. Quatro falhas
+reproduzidas antes da correcao (Store/Pix/fingerprint seguindo symlink trocado,
+fallback sobrescrevendo resposta concorrente). Leitor compartilhado por FD,
+flags POSIX e identidade/tipo antes dos bytes; fallback exclusivo wx e falha
+registrada sem repetir provedor/alterar alvo externo. Nenhuma dependencia,
+migration, credencial, UI ou operacao cloud alterada.
+
+Ubuntu local: 44 executor/arquivos (12 novos) e 39 Pix, zero SKIP. Windows
+leitor: 6/7, um SKIP symlink; Pix 38/39, EPERM em fixture de symlink antiga.
+Sem esconder falha ou elevar privilegios. CI/SAST/integracao ainda pendentes;
+[evidencia, limites de pais/Windows e criterios](SECURITY_FILE_HARDENING.md).
+Nao atribuir a isso protecao de DDoS, isolamento de processo hostil ou teto
+financeiro. Feature vercel-homologation continua separada e aguarda login humano.
+
 ## Meta de seguranca: APIs e CI, 4 de outubro
 
 Gabriel pediu foco defensivo usando Anthropic-Cybersecurity-Skills. Projeto

@@ -2,6 +2,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { readRegularFile } from './files.mjs';
 
 export function git(root, ...args) {
   return execFileSync('git', ['-C', root, ...args], {
@@ -57,7 +58,7 @@ export function fingerprint(root) {
     try {
       const stat = fs.lstatSync(full);
       if (stat.isSymbolicLink()) hash.update('link:' + fs.readlinkSync(full));
-      else if (stat.isFile()) hash.update(fs.readFileSync(full));
+      else if (stat.isFile()) hash.update(readRegularFile(full, { encoding: null }));
     } catch (error) {
       if (error.code !== 'ENOENT') throw error;
       hash.update('deleted');

@@ -6,6 +6,7 @@ on:
     paths:
       - 'payments-sandbox/**'
       - 'scripts/millennium/store.mjs'
+      - 'scripts/millennium/files.mjs'
       - 'package.json'
       - '.vscode/tasks.json'
       - '.github/workflows/pix-sandbox.yml'
@@ -14,6 +15,7 @@ on:
     paths:
       - 'payments-sandbox/**'
       - 'scripts/millennium/store.mjs'
+      - 'scripts/millennium/files.mjs'
       - 'package.json'
       - '.vscode/tasks.json'
       - '.github/workflows/pix-sandbox.yml'
