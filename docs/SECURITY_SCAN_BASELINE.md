@@ -64,6 +64,12 @@ API consultada explicitamente com ref=refs/heads/develop: IDs 6-11 fixed;
 IDs 1-5 open (4 high, 1 medium). Sem exclusoes, supressoes ou fechamento
 manual. Main preservada. O quadro inicial nao deve ser lido como estado atual.
 
+Feature security-ingress-limit, codigo 56a4f964: [CI](https://github.com/gabbswq/millennium/actions/runs/37302691893)
+e [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37302691853) aprovados.
+Consulta explicita da ref da feature: tres open (IDs 1, 2, 5; 2 high/1 medium).
+IDs 3/4 ausentes nessa ref; [prova de limites, concorrencia e superficie](SECURITY_INGRESS_LIMITS.md).
+Sem supressao/exclusao. Integracao e estado da ref develop ainda devem ser conferidos.
+
 ## Proximo turno
 
 Primeiro: renderizacao DOM segura e teste de busca sem regressao visual.

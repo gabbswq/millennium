@@ -36,6 +36,7 @@ jobs:
           cache: npm
           cache-dependency-path: payments-sandbox/package-lock.json
       - run: npm --prefix payments-sandbox ci --ignore-scripts
+      - run: npm --prefix payments-sandbox audit --omit=dev
       - run: npm --prefix payments-sandbox exec -- playwright install --with-deps chromium
       - run: npm run pix:verify
       - run: npm run test:millennium
