@@ -26,6 +26,10 @@ executou e encontrou 11 alertas abertos, 10 high/1 medium. Trechos revisados,
 sem supressoes ou reproducao ainda; [triagem e proximo turno](SECURITY_SCAN_BASELINE.md).
 Integrar so develop; esse baseline nao e aceite humano de seguranca ou release.
 
+Checkpoint 5 de outubro: feature integrada localmente em develop sem conflitos.
+Publicacao/checks do merge devem ser confirmados antes de afirmar conclusao
+remota. Nenhum alerta foi fechado automaticamente pela integracao.
+
 Nenhuma operacao cloud/pentest, credencial, plano ou pagamento alterado.
 Main/preview preservadas. Supabase schema ja concluido na etapa abaixo;
 patch Postgres, WAF/orcamento, Auth real e Stripe TEST externo seguem gates.

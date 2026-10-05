@@ -30,7 +30,11 @@ de Stripe/Supabase, carga remota, phishing, exploits e C2 estao fora do escopo.
 - [x] Adicionar analise estatica de JS/TS com acoes oficiais fixadas por SHA.
 - [x] Auditar ferramentas de desenvolvimento e atualizar patches/minors compativeis.
 - [x] Validar lint, build, CI de pagamentos e primeira analise CodeQL; revisar resultados.
-- [ ] Integrar somente develop apos verificacao. Main/preview nao fazem parte desta etapa.
+- [x] Integrar somente develop apos verificacao. Main/preview nao fazem parte desta etapa.
+
+Checkpoint 2026-10-05: integracao local em develop sem conflitos, codigo
+identico ao verificado na feature. Publicacao/checks da integracao devem ser
+conferidos no GitHub antes de declarar esse checkpoint remoto concluido.
 
 ## Ativos e fronteiras
 
