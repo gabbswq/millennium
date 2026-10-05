@@ -2,6 +2,26 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Estado integrado verificado, 5 de outubro
+
+Develop publicado em 4e4f9c372211b1d8d4deabfeb7b8e2b34c3d8354, incluindo
+hardening de arquivos e guia de login Vercel. [CI Pix integrado](https://github.com/gabbswq/millennium/actions/runs/37300227137),
+[executor integrado](https://github.com/gabbswq/millennium/actions/runs/37300227082)
+e [CodeQL integrado](https://github.com/gabbswq/millennium/actions/runs/37300227225)
+aprovados. Logs: 45 executor/arquivos, 39 API/receptor, 19 SQL e 12 navegador;
+115 casos unicos, sem somar repeticoes da matriz SQL 17/18 ou workflows.
+
+API CodeQL consultada com ref=refs/heads/develop: IDs 6-11 fixed; IDs 1-5
+open (4 high, 1 medium), sem supressao/exclusao ou fechamento manual. Isso
+nao certifica seguranca completa. Main remoto continua 3516b043c1be906e6d7c2631d7de9be74cf628cb;
+preview ausente. Nenhuma release, deploy ou pagamento real.
+
+Gabriel confirmou que ainda nao autenticou o CLI Vercel. Proximo passo humano:
+login oficial pelo procedimento em [VERCEL_HOMOLOGATION.md](VERCEL_HOMOLOGATION.md),
+sem enviar senha, codigo ou token aqui. Meta permanece ativa; cinco alertas,
+dependencias dev e gates externos continuam pendentes. Os checkpoints locais
+abaixo sao historico, substituidos pela evidencia integrada desta secao.
+
 ## Hardening de arquivos locais, 5 de outubro
 
 Feature security-file-descriptors parte de develop 34354a02. Quatro falhas

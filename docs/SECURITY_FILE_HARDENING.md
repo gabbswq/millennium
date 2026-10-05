@@ -75,9 +75,14 @@ da ref da feature confirmou os mesmos cinco alertas abertos (IDs 1-5).
 Login CLI Vercel ainda nao realizado, confirmado por Gabriel; nao iniciar
 autenticacao, copiar tokens ou publicar uma URL temporaria para contornar isso.
 
-Codigo final integrado localmente em develop sem conflitos. Publicacao/checks
-do merge ainda devem ser confirmados no GitHub; nao representam QA humana
-nem liberacao de pagamentos reais.
+Codigo final publicado em develop 4e4f9c372211b1d8d4deabfeb7b8e2b34c3d8354.
+[CI Pix integrado](https://github.com/gabbswq/millennium/actions/runs/37300227137),
+[executor integrado](https://github.com/gabbswq/millennium/actions/runs/37300227082)
+e [CodeQL integrado](https://github.com/gabbswq/millennium/actions/runs/37300227225)
+aprovados. Logs confirmam os mesmos 115 casos unicos, com SQL 17/18 aprovado.
+Consulta API explicita da ref develop: IDs 6-11 fixed; IDs 1-5 open (4 high,
+1 medium). Sem exclusoes/supressoes ou fechamento manual. Main preservada;
+isso nao representa QA humana nem liberacao de pagamentos reais.
 
 ## Limites
 
@@ -88,14 +93,14 @@ alteracao de conteudo por outro escritor e corrida token/unlink exigem limites
 de permissao/isolamento e revisao propria; nao afirmar protecao completa.
 
 Windows nao oferece os mesmos flags POSIX. Dev/ino e tipo sao conferidos antes
-de consumir bytes, mas seis casos sem symlinks nao homologam todos os reparse
+de consumir bytes, mas sete casos sem symlinks nao homologam todos os reparse
 points/junctions ou garantem equivalencia atomica. Nao habilitar Developer Mode
 ou elevar privilegios do usuario apenas para fazer o teste passar.
 
-Estes ensaios nao validam latencia de rede nem WAF/teto financeiro. Os alertas
-historicos do CodeQL continuam abertos ate a nova analise; testes verdes nao
-sao motivo para suprimi-los. Vercel/Auth/Stripe TEST externos e patch Postgres
-continuam gates da meta completa.
+Estes ensaios nao validam latencia de rede nem WAF/teto financeiro. Cinco
+alertas CodeQL permanecem abertos em develop; testes verdes nao sao motivo
+para suprimi-los. Vercel/Auth/Stripe TEST externos e patch Postgres continuam
+gates da meta completa.
 
 ## Referencias
 

@@ -2,7 +2,8 @@
 
 Codigo: 216f0357, feature/security-api-bounds, base develop e9387f3c.
 Esta e uma primeira triagem por leitura, nao um pentest nem aceite de risco
-em producao. Os alertas continuam abertos; nenhum foi suprimido/dispensado.
+em producao. Os onze alertas estavam abertos nessa revisao; nenhum foi
+suprimido/dispensado. Ver checkpoint integrado abaixo para o estado atual.
 
 ## Evidencia automatica
 
@@ -57,12 +58,19 @@ validada em CI. CodeQL dessa ref retorna cinco alertas abertos; IDs 6-11
 ausentes. Sem fechamento manual/exclusoes. A baseline acima continua historica;
 [evidencia e limitacoes da correcao](SECURITY_FILE_HARDENING.md).
 
+Checkpoint integrado 2026-10-05: develop 4e4f9c37 publicado, CI executor/Pix
+e [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37300227225) aprovados.
+API consultada explicitamente com ref=refs/heads/develop: IDs 6-11 fixed;
+IDs 1-5 open (4 high, 1 medium). Sem exclusoes, supressoes ou fechamento
+manual. Main preservada. O quadro inicial nao deve ser lido como estado atual.
+
 ## Proximo turno
 
 Primeiro: renderizacao DOM segura e teste de busca sem regressao visual.
-Depois: descriptor/flags de arquivos no executor e laboratorio, com testes locais
-de concorrencia; backpressure do Fastify em etapa propria. Reavaliar CodeQL
-na mesma ref e confirmar alertas corrigidos somente apos teste/scanner.
+Depois: limite de ingresso/backpressure do Fastify, fixture sem codigo gerado
+e medicao do bundle a partir do mesmo buffer. Leitor por descriptor/fallback
+ja integrado; seus limites permanecem documentados, sem declarar isolamento
+de processos hostis. Reavaliar CodeQL na mesma ref apos teste/scanner.
 Nao reescrever o portfolio ou misturar novas features com essas correcoes.
 
 Gates externos permanecem: patch PostgreSQL autorizado e recuperavel,
