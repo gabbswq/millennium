@@ -23,8 +23,16 @@ Integrar so develop; [evidencia e limites](SECURITY_FILE_HARDENING.md).
 
 Revisao final reproduziu perda de precisao de inode acima de 2^53. Leitor usa
 Stats BigInt; teste novo aprovado. Local final: 45 executor Ubuntu, zero SKIP;
-leitor Windows 7/8, um SKIP. CI/SAST desse ajuste ainda precisam ser confirmados.
-Integracao anterior esta somente local em develop, ainda nao publicada.
+leitor Windows 7/8, um SKIP. Codigo final b49752ee aprovado no
+[CI Pix](https://github.com/gabbswq/millennium/actions/runs/37298747278),
+[executor](https://github.com/gabbswq/millennium/actions/runs/37298747252) e
+[CodeQL](https://github.com/gabbswq/millennium/actions/runs/37298747287):
+115 casos unicos; API confirma cinco alertas abertos na ref da feature.
+Integracao anterior esta somente local em develop, ainda nao publicada;
+integrar ajuste final somente em develop. Gabriel confirmou que ainda nao
+autenticou CLI Vercel e perguntou sobre limpar/meta/SPEC. Orientacao fornecida;
+novo foco nao confirmado, escopo de produto preservado. Hospedagem aguarda login
+humano, sem envio de tokens/codigos ao chat.
 Nao atribuir a isso protecao de DDoS, isolamento de processo hostil ou teto
 financeiro. Feature vercel-homologation continua separada e aguarda login humano.
 

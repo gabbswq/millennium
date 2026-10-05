@@ -38,8 +38,8 @@ timeout de dez minutos. Nenhuma dependencia nova.
 - [x] Suite local Ubuntu final: 45 casos de executor/arquivos, zero SKIP; 13 novos.
 - [x] Suite local Pix Ubuntu: 39 casos HTTP/provedor/receptor, zero SKIP.
 - [x] Leitor Windows final: sete casos aprovados, um SKIP explicito de symlink.
-- [ ] CI final apos BigInt: executor/Pix, build/navegador e SQL 17/18.
-- [ ] CodeQL da revisao final apos BigInt e comparacao na mesma ref.
+- [x] CI final apos BigInt: executor/Pix, build/navegador e SQL 17/18.
+- [x] CodeQL da revisao final apos BigInt e comparacao na mesma ref.
 - [ ] Integrar somente develop apos evidencia; main/preview preservadas.
 
 Suíte Pix Windows: 38/39; o teste antigo de symlink falhou EPERM na criacao do
@@ -64,7 +64,16 @@ Na revisao final, um quinto caso foi reproduzido: identidades adjacentes acima
 de 2^53 se confundiam em Number. fstat/lstat agora usam bigint:true; o novo
 teste passou apos a correcao. Local final: 45/45 no Ubuntu, leitor Windows
 7/8 com SKIP de symlink. A evidencia db4ef4cd acima permanece historica;
-CI/SAST precisam ser confirmados para este ajuste antes da publicacao do merge.
+Isso exigiu uma nova validacao CI/SAST antes da publicacao do merge.
+
+Codigo final b49752ee aprovado no [CI Pix](https://github.com/gabbswq/millennium/actions/runs/37298747278),
+[CI executor](https://github.com/gabbswq/millennium/actions/runs/37298747252) e
+[CodeQL](https://github.com/gabbswq/millennium/actions/runs/37298747287).
+45 executor/arquivos, 39 API/receptor, 19 SQL por versao nativa e 12 navegador:
+115 casos unicos. Build aprovado; sem novos SKIP em Ubuntu. Consulta explicita
+da ref da feature confirmou os mesmos cinco alertas abertos (IDs 1-5).
+Login CLI Vercel ainda nao realizado, confirmado por Gabriel; nao iniciar
+autenticacao, copiar tokens ou publicar uma URL temporaria para contornar isso.
 
 ## Limites
 
