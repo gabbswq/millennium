@@ -40,7 +40,7 @@ timeout de dez minutos. Nenhuma dependencia nova.
 - [x] Leitor Windows final: sete casos aprovados, um SKIP explicito de symlink.
 - [x] CI final apos BigInt: executor/Pix, build/navegador e SQL 17/18.
 - [x] CodeQL da revisao final apos BigInt e comparacao na mesma ref.
-- [ ] Integrar somente develop apos evidencia; main/preview preservadas.
+- [x] Integrar localmente somente develop apos evidencia; main/preview preservadas.
 
 Suíte Pix Windows: 38/39; o teste antigo de symlink falhou EPERM na criacao do
 fixture. Nao foi reescrito para aparentar aprovacao. Ubuntu/CI sao a prova dos
@@ -74,6 +74,10 @@ Codigo final b49752ee aprovado no [CI Pix](https://github.com/gabbswq/millennium
 da ref da feature confirmou os mesmos cinco alertas abertos (IDs 1-5).
 Login CLI Vercel ainda nao realizado, confirmado por Gabriel; nao iniciar
 autenticacao, copiar tokens ou publicar uma URL temporaria para contornar isso.
+
+Codigo final integrado localmente em develop sem conflitos. Publicacao/checks
+do merge ainda devem ser confirmados no GitHub; nao representam QA humana
+nem liberacao de pagamentos reais.
 
 ## Limites
 

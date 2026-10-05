@@ -33,6 +33,10 @@ integrar ajuste final somente em develop. Gabriel confirmou que ainda nao
 autenticou CLI Vercel e perguntou sobre limpar/meta/SPEC. Orientacao fornecida;
 novo foco nao confirmado, escopo de produto preservado. Hospedagem aguarda login
 humano, sem envio de tokens/codigos ao chat.
+
+Checkpoint: codigo b49752ee integrado localmente em develop sem conflitos.
+Publicacao e checks do merge pendentes de confirmacao remota. Manter main
+intacta e preservar a documentacao de login da feature vercel-homologation.
 Nao atribuir a isso protecao de DDoS, isolamento de processo hostil ou teto
 financeiro. Feature vercel-homologation continua separada e aguarda login humano.
 
