@@ -28,11 +28,18 @@ tests/payments/e2e-server.mjs, nao um modo de demonstracao dentro do aplicativo.
 | NEXT_PUBLIC_TURNSTILE_SITE_KEY | Site key publica; segredo privado somente no Supabase Auth |
 | SUPABASE_SERVICE_ROLE_KEY | Exclusiva do servidor, escopo privilegiado |
 | MILLENNIUM_APP_ORIGIN | Origem HTTPS exata, sem caminho/query/credenciais |
-| STRIPE_SECRET_KEY | Exclusivamente sk_test_ nesta versao |
+| STRIPE_SECRET_KEY | Somente sk_test_ ou rk_test_; restrita de teste preferida |
 | STRIPE_CHECKOUT_ENABLED | true somente apos setup do Checkout testado |
 | STRIPE_CHECKOUT_WEBHOOK_SECRET | Segredo do endpoint de Checkout |
 | STRIPE_CONNECT_ENABLED | true somente apos setup Connect testado |
 | STRIPE_CONNECT_WEBHOOK_SECRET | Segredo separado do endpoint Connect |
+
+Chaves rk_test_ sao segredos de servidor, nao chaves publicas. As duas formas
+TEST compartilham uma unica policy com a ferramenta de recuperacao; chaves
+live, publishable, organizacionais, vazias ou malformadas sao recusadas antes
+dos SDKs. Prefixo/forma nao provam autenticidade nem permissoes suficientes.
+Nao substituir silenciosamente uma chave restrita por uma chave ampla se
+a Stripe negar permissao. Ver [guia de permissoes TEST](STRIPE_TEST_KEYS.md).
 
 Migrations novas dependem de auth.users e do catalogo public.products/prices.
 Antes de aplicar: revisar migrations legadas, grants/RLS, backup e plano de

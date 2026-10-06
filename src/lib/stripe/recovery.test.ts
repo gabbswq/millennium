@@ -146,12 +146,57 @@ test('CLI argument parser rejects extra, duplicate and dangerous input without e
 const environment = { NODE_ENV: 'test' as const, NEXT_PUBLIC_SUPABASE_URL: 'https://aaaaaaaaaaaaaaaaaaaa.supabase.co',
   SUPABASE_SERVICE_ROLE_KEY: 'disposable-fixture-only', STRIPE_SECRET_KEY: 'sk_test_disposableFixtureOnly' }
 test('CLI refuses live key and untrusted database hosts before initializing SDKs', () => {
-  for (const change of [{ STRIPE_SECRET_KEY: 'sk_live_disposableFixtureOnly' }, { STRIPE_SECRET_KEY: '' },
+  for (const change of [{ STRIPE_SECRET_KEY: 'sk_live_disposableFixtureOnly' },
+    { STRIPE_SECRET_KEY: 'rk_live_disposableFixtureOnly' }, { STRIPE_SECRET_KEY: 'pk_test_disposableFixtureOnly' },
+    { STRIPE_SECRET_KEY: 'rk_test_disposableFixtureOnly\n' }, { STRIPE_SECRET_KEY: '' },
     { SUPABASE_SERVICE_ROLE_KEY: '' }, { NEXT_PUBLIC_SUPABASE_URL: 'http://127.0.0.1:54321' },
     { NEXT_PUBLIC_SUPABASE_URL: 'https://evil.test' }, { NEXT_PUBLIC_SUPABASE_URL: environment.NEXT_PUBLIC_SUPABASE_URL + '/?secret=x' }]) {
     assert.throws(() => recoveryConfiguration({ ...environment, ...change }), code('CONFIGURATION_UNAVAILABLE'))
   }
 })
+test('CLI accepts restricted test credentials without changing the trusted host policy', () => {
+  const restrictedEnvironment = { ...environment, STRIPE_SECRET_KEY: 'rk_test_disposableFixtureOnly' }
+  assert.deepEqual(recoveryConfiguration(restrictedEnvironment), {
+    url: environment.NEXT_PUBLIC_SUPABASE_URL, databaseKey: environment.SUPABASE_SERVICE_ROLE_KEY,
+    stripeKey: restrictedEnvironment.STRIPE_SECRET_KEY,
+  })
+})
+
+test('invalid keys stop recovery before any intercepted SDK request', () => {
+  let requests = 0
+  const fakeFetch: typeof fetch = async () => { requests++; throw new Error('Unexpected fixture request') }
+  for (const key of ['sk_live_disposableFixtureOnly', 'rk_live_disposableFixtureOnly',
+    'pk_test_disposableFixtureOnly', 'rk_test_disposableFixtureOnly\n']) {
+    assert.throws(() => recoveryPorts({ ...environment, STRIPE_SECRET_KEY: key }, fakeFetch), code('CONFIGURATION_UNAVAILABLE'))
+  }
+  assert.equal(requests, 0)
+})
+
+test('official SDK accepts restricted TEST key on read-only inspection without external requests', async () => {
+  const f = fixture(), calls: Request[] = []
+  const restrictedEnvironment = { ...environment, STRIPE_SECRET_KEY: 'rk_test_disposableFixtureOnly' }
+  const fakeFetch: typeof fetch = async (input, init) => {
+    const call = new Request(input, init); calls.push(call)
+    assert.equal(call.method, 'GET')
+    const url = new URL(call.url)
+    const isStripe = url.hostname === 'api.stripe.com'
+    if (isStripe) {
+      assert.equal(call.headers.get('authorization'), `Bearer ${restrictedEnvironment.STRIPE_SECRET_KEY}`)
+      assert.equal(url.pathname, `/v1/checkout/sessions/${request.sessionId}`)
+      assert.equal(url.searchParams.get('expand[0]'), 'line_items')
+    } else {
+      assert.equal(url.hostname, 'aaaaaaaaaaaaaaaaaaaa.supabase.co')
+      assert.equal(url.pathname, '/rest/v1/stripe_checkout_requests')
+    }
+    return new Response(JSON.stringify(isStripe ? f.session : f.record()), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    })
+  }
+  const ports = recoveryPorts(restrictedEnvironment, fakeFetch)
+  assert.equal((await recoverCheckout(ports.store, ports.provider, request, now)).outcome, 'READY_TO_BIND')
+  assert.equal(calls.length, 2)
+})
+
 test('official SDK adapter sends only GETs on inspection and a conditional binding PATCH on apply', async () => {
   const f = fixture(), calls: Request[] = []
   const fakeFetch: typeof fetch = async (input, init) => {

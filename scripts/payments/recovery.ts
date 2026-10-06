@@ -2,6 +2,7 @@ import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 import type { Database } from '../../src/types/database'
 import { UUID } from '../../src/lib/stripe/guards'
+import { isStripeTestSecretKey } from '../../src/lib/stripe/keys'
 import { CheckoutRecoveryError, recoverCheckout, type RecoveryRequest, type RecoveryStore, type RecoveryProvider } from '../../src/lib/stripe/recovery'
 
 export function parseRecoveryArguments(args: string[]): RecoveryRequest {
@@ -28,7 +29,7 @@ export function recoveryConfiguration(environment: NodeJS.ProcessEnv) {
   const stripeKey = environment.STRIPE_SECRET_KEY
   // No proxy, custom host, local fallback or live provider can receive privileged credentials.
   if (!/^https:\/\/[a-z0-9]{20}\.supabase\.co\/?$/.test(url) || !databaseKey ||
-      !stripeKey?.startsWith('sk_test_') || stripeKey.length <= 16) {
+      !isStripeTestSecretKey(stripeKey)) {
     throw new CheckoutRecoveryError('CONFIGURATION_UNAVAILABLE')
   }
   return { url, databaseKey, stripeKey }

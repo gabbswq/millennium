@@ -73,15 +73,20 @@ e [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37303082108) aprov
 API dessa ref confirma IDs 3/4 fixed e tres open (IDs 1/2/5; 2 high/1 medium).
 Main preservada; nenhuma promocao preview/release.
 
-## Proximo turno
+## Checkpoint integrado e proximo turno
 
 Feature security-static-regressions corrigiu busca DOM, fixture com codigo
 gerado e medicao de bundle. Codigo dd3795cf: [CI](https://github.com/gabbswq/millennium/actions/runs/37305524147)
 e [executor](https://github.com/gabbswq/millennium/actions/runs/37305524100)
 aprovados, 59 casos unicos. Analise CodeQL 1892950884 tem zero resultados;
 API da ref da feature/state=open retorna vazio, sem supressao/exclusao.
-[Provas e limites](SECURITY_STATIC_REGRESSIONS.md). Confirmar integracao develop
-e sua analise/alertas antes de usar esse resultado como estado daquela branch.
+[Provas e limites](SECURITY_STATIC_REGRESSIONS.md). Integrado em develop
+009d43a0: [CI seguranca](https://github.com/gabbswq/millennium/actions/runs/37306091601)
+e [executor](https://github.com/gabbswq/millennium/actions/runs/37306091587)
+aprovados, 59 casos unicos. Analise 1892972549 teve zero resultados;
+API ref=refs/heads/develop reconsultada em 6 de outubro confirma IDs 1-11 fixed.
+Sem exclusoes, supressoes ou fechamento manual. Nao extrapolar para main,
+ausencia de falhas desconhecidas ou funcionamento de pagamentos reais.
 
 Leitor por descriptor/fallback e limites de ingresso Fastify ja integrados;
 seus limites permanecem documentados, sem declarar isolamento de processos
@@ -91,4 +96,15 @@ Nao reescrever o portfolio ou misturar novas features com essas correcoes.
 
 Gates externos permanecem: patch PostgreSQL autorizado e recuperavel,
 host/WAF/limites financeiros, Auth/CAPTCHA server-side e Stripe TEST externo.
-Nenhuma release main/preview, credencial, plano ou operacao cloud foi alterada.
+Nenhuma release main/preview, credencial ou plano foi alterado. Criacao e pausa
+do projeto de teste Vercel sao registradas separadamente no
+[runbook de hospedagem](VERCEL_HOMOLOGATION.md); nao sao uma homologacao aprovada.
+
+Checkpoint de dependencias em 6 de outubro: CI da feature stripe-test-key-policy
+29203881 falhou por source-map-js 1.2.1, GHSA-68fv-2mgg-jv7q (high). Patch
+pontual para 1.2.2 em raiz/landing preserva manifests e outras versoes. Codigo
+195aecfe aprovado no [CI pagamentos](https://github.com/gabbswq/millennium/actions/runs/37412445072)
+com audit producao limpo, e [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37412445011)
+analise 1898104184 sem resultados/error/warning. Auditoria completa local ainda
+tem 10 entradas dev/transitivas, 7 high/3 moderate; a contagem sete acima e
+historica. Nao houve downgrade/major upgrade ou supressao para fazer o gate passar.

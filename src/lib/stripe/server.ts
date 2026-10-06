@@ -6,6 +6,7 @@ import { evaluateKyc, verifiedIdentity, type KycResult } from './kyc'
 import { OnboardingError, type ConnectionStore } from './onboarding'
 import { appOrigin, requestBudget } from './guards'
 import type { CheckoutStore, CheckoutProvider } from './checkout'
+import { isStripeTestSecretKey } from './keys'
 
 export function authConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
@@ -14,7 +15,7 @@ export function authConfigured(): boolean {
 export function stripeConfiguration(feature: 'connect' | 'checkout' = 'connect') {
   const key = process.env.STRIPE_SECRET_KEY
   const configured = process.env[feature === 'connect' ? 'STRIPE_CONNECT_ENABLED' : 'STRIPE_CHECKOUT_ENABLED'] === 'true' &&
-    key?.startsWith('sk_test_') && key.length > 16 && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
+    isStripeTestSecretKey(key) && Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY)
   if (!configured || !key) throw new OnboardingError(503, 'Integracao Stripe indisponivel no momento.')
   return { stripe: new Stripe(key, { timeout: 10000, maxNetworkRetries: 0 }), origin: appOrigin() }
 }
