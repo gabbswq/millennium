@@ -19,7 +19,10 @@ antes de homologar. Tentativa corrigida criou o registro
 dpl_BBv3K67pN7k1XMAUHW2u4dsC5DWE com target=null e codigo 195aecfe, mas
 estado BLOCKED. O conector retornou isError=true; consulta posterior encontrou
 esse registro. Nao repetir a criacao nem considerar homologacao concluida.
-Nao foi retornada uma causa verificavel do bloqueio. [Estado e gates](VERCEL_HOMOLOGATION.md).
+O conector nao retornou causa; o painel oficial autenticado confirmou que
+o projeto pausado impediu a construcao. Consulta anonima do Preview retornou
+302 para vercel.com, sem bypass; isso prova protecao, nao aplicativo funcional.
+[Estado e gates](VERCEL_HOMOLOGATION.md).
 
 Feature stripe-test-key-policy usa uma policy comum para sk_test_/rk_test_ no
 app e recuperacao; recusa live/publicavel/organizacional/malformada antes dos
@@ -50,8 +53,19 @@ Essa triagem nao autoriza downgrade Next/ESLint ou migracao Tailwind major.
 Vercel aceitou STRIPE_CHECKOUT_ENABLED=false e STRIPE_CONNECT_ENABLED=false
 para preview/production e readback de Node 22.x, mantendo SSO padrao.
 Configuracao de build, fonte privada, sem autoassign e duracao de 30s/gru1
-foi solicitada, mas campos nao foram retornados pelo conector para confirmar
-persistencia. Isso permanece gate, nao um teto financeiro comprovado.
+foi solicitada. Painel oficial confirmou Hobby, Node 22.x, gru1, timeout padrao
+30s, protecao Standard e builds concorrentes sob demanda desativados. Fonte
+privada, autoassign e comandos ainda nao foram conferidos no painel.
+Nenhuma alteracao de UI, upgrade ou desbloqueio foi executado nessa leitura.
+O limite de duracao nao e um teto financeiro nem prova runtime.
+
+Integracao publicada em develop bfa763dfb0b8b8a020eb83a698ed81018fa1a2c8,
+com paridade de codigo/lockfiles conferida contra 195aecfe. [CI integrado](https://github.com/gabbswq/millennium/actions/runs/37413359655)
+e [CodeQL integrado](https://github.com/gabbswq/millennium/actions/runs/37413359682)
+aprovados. Analise 1898143068 do SHA integrado: zero resultados/error/warning;
+consulta explicita ref develop/state=open retornou zero. Main remoto permanece
+3516b043c1be906e6d7c2631d7de9be74cf628cb e preview ausente. Nao houve
+release, habilitacao financeira ou homologacao Auth/Stripe real.
 
 ## Tres alertas restantes corrigidos na feature, 5 de outubro
 

@@ -61,6 +61,12 @@ Lint, build e audit producao aprovados. [CI seguranca](https://github.com/gabbsw
 aprovado, analise CodeQL 1898104184 com zero resultados/error/warning;
 consulta da ref da feature/state=open retornou zero. Nao comprova Stripe real.
 
+Integrado em develop bfa763dfb0b8b8a020eb83a698ed81018fa1a2c8, com codigo e
+lockfiles identicos a 195aecfe. [CI integrado](https://github.com/gabbswq/millennium/actions/runs/37413359655)
+e [CodeQL integrado](https://github.com/gabbswq/millennium/actions/runs/37413359682)
+aprovados; analise 1898143068 sem resultados/error/warning, zero alertas abertos
+na consulta explicita da ref develop. Main/preview nao promovidos.
+
 O primeiro CI encontrou a dependencia existente source-map-js 1.2.1,
 vulneravel a DoS em source maps indexados. A atualizacao pontual para 1.2.2
 nos lockfiles raiz e landing usa a integridade publicada no registro oficial.
