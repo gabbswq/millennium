@@ -13,7 +13,8 @@ Nenhuma release Git main/preview; hospedagem de teste ainda nao homologada.
   prod_deployment_urls_and_all_previews. Esses campos nao provam runtime,
   configuracao de build/limites ou protecao de cada dominio em HTTP.
 - list_teams retornou vazio. O accountId retornado pelo projeto nao permitiu
-  comprovar plano de equipe; somente o plano hobby do usuario foi confirmado.
+  comprovar plano de equipe pela API. Leitura posterior do painel oficial
+  autenticado exibiu gabbswq's projects Hobby, sem selecionar upgrade/trial.
 - Deploy dpl_9bCmPALnDygWXMx6ZvvK39GcoDi3 terminou READY a partir da revisao
   acima. Retornou target=production apesar de solicitado target=preview.
   Nao considerar READY uma homologacao de Auth/Stripe nem uma release autorizada.
@@ -28,15 +29,23 @@ Nenhuma release Git main/preview; hospedagem de teste ainda nao homologada.
 - Build npm run build, install npm ci --ignore-scripts, raiz Next.js,
   publicSource=false, autoAssignCustomDomains=false, gru1 e timeout 30s foram
   solicitados. O conector nao retornou esses campos para provar persistencia;
-  confirmar no Dashboard antes de confiar em limite/privacidade de fonte.
+  o painel confirmou posteriormente Node 22.x, gru1 e MaxDuration=30, com Save
+  desativado. Builds concorrentes sob demanda estavam Disabled, maquina Basic
+  e protecao Standard. Comandos, publicSource e autoassign ainda precisam
+  de verificacao; duracao nao equivale a teto financeiro ou funcao em execucao.
 - Uma tentativa corrigida, omitindo target, com codigo/lockfile testado
   195aecfecc4c8dbdf6fa79a4f65f223237b68e7a da feature stripe-test-key-policy,
   retornou isError=true. List/get posteriores encontraram
   dpl_BBv3K67pN7k1XMAUHW2u4dsC5DWE, target=null e estado terminal BLOCKED.
   Preview nao foi considerado pronto e a criacao nao foi repetida. Causa do
-  bloqueio nao veio na resposta; nao afirmar quota/plano/permissao sem prova.
+  bloqueio nao veio na resposta API; pagina oficial Deployment Details confirmou:
+  nao construido porque o projeto estava pausado. Nao era prova de quota,
+  plano insuficiente ou falha de codigo. Nenhum Redeploy/unpause foi executado.
   URL registrado: millennium-test-qwmlyhcyk-gabbswqs-projects.vercel.app,
-  ainda nao validado como aplicativo acessivel. Nao despausar automaticamente.
+  consulta HTTPS anonima retornou 302 para vercel.com; nao houve bypass ou
+  seguimento do redirecionamento. Isso nao prova aplicativo acessivel.
+  Nao despausar automaticamente: a pausa tambem bloqueia o deploy production
+  anterior, e retirar essa protecao exige planejar as superficies expostas.
 
 Historico do CLI antes da criacao por API:
 
@@ -88,13 +97,14 @@ senha, codigo de MFA, link de dispositivo ou token na conversa.
 ## Gates para continuar
 
 1. Reusar o projeto millennium-test e conferir escopo/protecao; manter Hobby.
-2. Resolver o BLOCKED do registro Preview existente com evidencia do provedor,
+2. Resolver o bloqueio por pausa com um plano autorizado para as superficies
+   do deploy production anterior e para o ambiente Preview,
    sem repetir build/criacao, promover production ou contornar protecao.
    O alvo foi corrigido: a [API oficial](https://vercel.com/docs/rest-api/deployments/create-a-new-deployment)
    documenta omitir target para Preview; a resposta target=null indica Preview.
    Nao passar preview como string nem assumir sucesso sem ler a resposta.
    Nao despausar o deployment production anterior para acomodar o conector.
-   Confirmar os campos de configuracao que nao foram retornados e usar Next.js
+   Confirmar os campos restantes de configuracao e usar Next.js
    na raiz, sem
    publicar a landing legada ou usar main como fonte por conveniencia.
 3. Construir/deployar somente codigo verificado de develop/feature; ambiente
