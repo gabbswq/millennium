@@ -24,6 +24,13 @@ Nao cria chave nem garante permissoes remotas; [inventario e guia](STRIPE_TEST_K
 Local: 74 testes dominio/Auth aprovados, incluindo sete casos novos; lint e
 typecheck e build aprovados. CI e integracao ainda precisam concluir neste checkpoint.
 
+Primeiro CI da feature 29203881 falhou na auditoria de producao por
+source-map-js 1.2.1 (GHSA-68fv-2mgg-jv7q, high). Demais etapas de verify
+ficaram SKIP; nao considerar esse CI aprovado. SQL 17/18 e CodeQL/regressoes
+concluiram separadamente. Lockfiles raiz/landing recebem somente a versao
+1.2.2, URL e integridade oficiais; sem audit fix amplo, dependencia nova ou
+relaxamento do gate. Revalidar build/CI no lockfile corrigido antes de integrar.
+
 ## Tres alertas restantes corrigidos na feature, 5 de outubro
 
 Feature security-static-regressions parte de develop 6055fb6d. Busca renderiza

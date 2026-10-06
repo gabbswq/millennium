@@ -54,6 +54,13 @@ zero requisicoes para chave invalida e transporte oficial interceptado com
 chave restrita ficticia. Nenhuma chave autentica ou chamada externa Stripe.
 Estado integrado e totais ficam no [handoff](HANDOFF_MILLENNIUM.md).
 
+O primeiro CI encontrou a dependencia existente source-map-js 1.2.1,
+vulneravel a DoS em source maps indexados. A atualizacao pontual para 1.2.2
+nos lockfiles raiz e landing usa a integridade publicada no registro oficial.
+Nenhuma dependencia nova ou upgrade amplo; o gate de audit continua ativo.
+Ver [advisory](https://github.com/advisories/GHSA-68fv-2mgg-jv7q) e
+[release oficial](https://github.com/7rulnik/source-map-js/releases/tag/v1.2.2).
+
 Ainda faltam login/JWT real, CAPTCHA server-side, dois donos, catalogo TEST,
 Checkout/webhook externos e controles da hospedagem. A Vercel permanece
 pausada ate corrigir o alvo e preparar a homologacao, sem contrato/plano pago.
