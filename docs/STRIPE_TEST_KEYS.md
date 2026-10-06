@@ -54,10 +54,19 @@ zero requisicoes para chave invalida e transporte oficial interceptado com
 chave restrita ficticia. Nenhuma chave autentica ou chamada externa Stripe.
 Estado integrado e totais ficam no [handoff](HANDOFF_MILLENNIUM.md).
 
+Codigo/lockfile final 195aecfecc4c8dbdf6fa79a4f65f223237b68e7a aprovado no
+[CI pagamentos](https://github.com/gabbswq/millennium/actions/runs/37412445072):
+74 dominio/Auth, 40 SQL nativos, 12 browser e 12 CAPTCHA, 138 casos unicos.
+Lint, build e audit producao aprovados. [CI seguranca](https://github.com/gabbswq/millennium/actions/runs/37412445011)
+aprovado, analise CodeQL 1898104184 com zero resultados/error/warning;
+consulta da ref da feature/state=open retornou zero. Nao comprova Stripe real.
+
 O primeiro CI encontrou a dependencia existente source-map-js 1.2.1,
 vulneravel a DoS em source maps indexados. A atualizacao pontual para 1.2.2
 nos lockfiles raiz e landing usa a integridade publicada no registro oficial.
 Nenhuma dependencia nova ou upgrade amplo; o gate de audit continua ativo.
+Auditoria completa ainda retorna dez entradas dev/transitivas (7 high,
+3 moderate). Esses alertas nao foram escondidos ou marcados como resolvidos.
 Ver [advisory](https://github.com/advisories/GHSA-68fv-2mgg-jv7q) e
 [release oficial](https://github.com/7rulnik/source-map-js/releases/tag/v1.2.2).
 

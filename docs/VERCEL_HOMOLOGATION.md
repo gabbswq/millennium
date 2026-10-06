@@ -1,7 +1,7 @@
 # Vercel: homologacao pessoal do Millennium
 
 Checkpoint atualizado: 2026-10-06. Gabriel escolheu Vercel, sem contratar plano.
-Fonte do deploy observado: develop 009d43a086d58c01c54a230618d0b99eaa6efa54.
+Fonte do primeiro deploy observado: develop 009d43a086d58c01c54a230618d0b99eaa6efa54.
 Nenhuma release Git main/preview; hospedagem de teste ainda nao homologada.
 
 ## Estado verificado
@@ -9,7 +9,7 @@ Nenhuma release Git main/preview; hospedagem de teste ainda nao homologada.
 - Conexao Vercel do app respondeu: usuario gabbswq, plano hobby.
 - Projeto millennium-test criado pela API nativa autenticada, sem extrair
   token ou depender do login CLI. ID prj_mFFhIx2CM3D4ErZzmcNlpKjBLCxv.
-- Consulta atual: framework nextjs, Node 24.x, live=false e SSO enabled
+- Consulta inicial: framework nextjs, Node 24.x, live=false e SSO enabled
   prod_deployment_urls_and_all_previews. Esses campos nao provam runtime,
   configuracao de build/limites ou protecao de cada dominio em HTTP.
 - list_teams retornou vazio. O accountId retornado pelo projeto nao permitiu
@@ -22,6 +22,21 @@ Nenhuma release Git main/preview; hospedagem de teste ainda nao homologada.
   HTTPS anonimas, sem bypass/redirecionamento, confirmaram status 503 e
   DEPLOYMENT_PAUSED no dominio millennium-test.vercel.app e no URL unico
   millennium-test-86gqpcwzk-gabbswqs-projects.vercel.app. Manter pausado.
+- Preparacao posterior: Node alterado para 22.x e confirmado na resposta.
+  STRIPE_CHECKOUT_ENABLED=false e STRIPE_CONNECT_ENABLED=false aceitos para
+  preview e production. Sao flags, nao chaves; nenhum segredo foi criado/lido.
+- Build npm run build, install npm ci --ignore-scripts, raiz Next.js,
+  publicSource=false, autoAssignCustomDomains=false, gru1 e timeout 30s foram
+  solicitados. O conector nao retornou esses campos para provar persistencia;
+  confirmar no Dashboard antes de confiar em limite/privacidade de fonte.
+- Uma tentativa corrigida, omitindo target, com codigo/lockfile testado
+  195aecfecc4c8dbdf6fa79a4f65f223237b68e7a da feature stripe-test-key-policy,
+  retornou isError=true. List/get posteriores encontraram
+  dpl_BBv3K67pN7k1XMAUHW2u4dsC5DWE, target=null e estado terminal BLOCKED.
+  Preview nao foi considerado pronto e a criacao nao foi repetida. Causa do
+  bloqueio nao veio na resposta; nao afirmar quota/plano/permissao sem prova.
+  URL registrado: millennium-test-qwmlyhcyk-gabbswqs-projects.vercel.app,
+  ainda nao validado como aplicativo acessivel. Nao despausar automaticamente.
 
 Historico do CLI antes da criacao por API:
 
@@ -73,11 +88,14 @@ senha, codigo de MFA, link de dispositivo ou token na conversa.
 ## Gates para continuar
 
 1. Reusar o projeto millennium-test e conferir escopo/protecao; manter Hobby.
-2. Corrigir o alvo antes de publicar outro ensaio. A [API oficial](https://vercel.com/docs/rest-api/deployments/create-a-new-deployment)
+2. Resolver o BLOCKED do registro Preview existente com evidencia do provedor,
+   sem repetir build/criacao, promover production ou contornar protecao.
+   O alvo foi corrigido: a [API oficial](https://vercel.com/docs/rest-api/deployments/create-a-new-deployment)
    documenta omitir target para Preview; a resposta target=null indica Preview.
    Nao passar preview como string nem assumir sucesso sem ler a resposta.
    Nao despausar o deployment production anterior para acomodar o conector.
-   Usar Next.js na raiz, sem
+   Confirmar os campos de configuracao que nao foram retornados e usar Next.js
+   na raiz, sem
    publicar a landing legada ou usar main como fonte por conveniencia.
 3. Construir/deployar somente codigo verificado de develop/feature; ambiente
    preview Vercel nao significa promover a branch Git preview.

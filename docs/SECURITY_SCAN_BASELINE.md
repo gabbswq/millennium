@@ -99,3 +99,12 @@ host/WAF/limites financeiros, Auth/CAPTCHA server-side e Stripe TEST externo.
 Nenhuma release main/preview, credencial ou plano foi alterado. Criacao e pausa
 do projeto de teste Vercel sao registradas separadamente no
 [runbook de hospedagem](VERCEL_HOMOLOGATION.md); nao sao uma homologacao aprovada.
+
+Checkpoint de dependencias em 6 de outubro: CI da feature stripe-test-key-policy
+29203881 falhou por source-map-js 1.2.1, GHSA-68fv-2mgg-jv7q (high). Patch
+pontual para 1.2.2 em raiz/landing preserva manifests e outras versoes. Codigo
+195aecfe aprovado no [CI pagamentos](https://github.com/gabbswq/millennium/actions/runs/37412445072)
+com audit producao limpo, e [CodeQL](https://github.com/gabbswq/millennium/actions/runs/37412445011)
+analise 1898104184 sem resultados/error/warning. Auditoria completa local ainda
+tem 10 entradas dev/transitivas, 7 high/3 moderate; a contagem sete acima e
+historica. Nao houve downgrade/major upgrade ou supressao para fazer o gate passar.

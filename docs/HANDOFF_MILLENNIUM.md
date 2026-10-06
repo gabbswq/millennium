@@ -15,21 +15,43 @@ cancelamento falhou e projeto foi pausado. Duas consultas HTTPS anonimas em
 6 de outubro comprovaram 503 DEPLOYMENT_PAUSED no URL unico e dominio principal.
 Sem bypass, credencial, plano pago ou alteracao main/preview. Proximo deploy
 devera omitir target conforme API oficial e confirmar target=null/protecao
-antes de homologar. [Estado e gates](VERCEL_HOMOLOGATION.md).
+antes de homologar. Tentativa corrigida criou o registro
+dpl_BBv3K67pN7k1XMAUHW2u4dsC5DWE com target=null e codigo 195aecfe, mas
+estado BLOCKED. O conector retornou isError=true; consulta posterior encontrou
+esse registro. Nao repetir a criacao nem considerar homologacao concluida.
+Nao foi retornada uma causa verificavel do bloqueio. [Estado e gates](VERCEL_HOMOLOGATION.md).
 
 Feature stripe-test-key-policy usa uma policy comum para sk_test_/rk_test_ no
 app e recuperacao; recusa live/publicavel/organizacional/malformada antes dos
 SDKs. Zero retries, timeouts, flags, correlacao e livemode preservados.
 Nao cria chave nem garante permissoes remotas; [inventario e guia](STRIPE_TEST_KEYS.md).
-Local: 74 testes dominio/Auth aprovados, incluindo sete casos novos; lint e
-typecheck e build aprovados. CI e integracao ainda precisam concluir neste checkpoint.
+Local: 74 testes dominio/Auth aprovados, incluindo sete casos novos; lint,
+typecheck e build aprovados. CI final do codigo/lockfile 195aecfe aprovado:
+[pagamentos](https://github.com/gabbswq/millennium/actions/runs/37412445072)
+e [seguranca](https://github.com/gabbswq/millennium/actions/runs/37412445011).
+138 casos unicos de pagamentos: 74 dominio/Auth, 40 SQL nativos (17/18),
+12 browser e 12 CAPTCHA. PGlite passou 34/40 e SKIP explicito nos seis casos
+multiconexao; nao somar matrizes ou repeticoes. Auditoria producao zero alertas
+conhecidos. CodeQL analise 1898104184 da mesma revisao: zero resultados,
+error/warning vazios; API da ref da feature/state=open retornou zero.
+Integracao somente develop; nenhuma release main/preview ou pagamento.
 
 Primeiro CI da feature 29203881 falhou na auditoria de producao por
 source-map-js 1.2.1 (GHSA-68fv-2mgg-jv7q, high). Demais etapas de verify
 ficaram SKIP; nao considerar esse CI aprovado. SQL 17/18 e CodeQL/regressoes
 concluiram separadamente. Lockfiles raiz/landing recebem somente a versao
 1.2.2, URL e integridade oficiais; sem audit fix amplo, dependencia nova ou
-relaxamento do gate. Revalidar build/CI no lockfile corrigido antes de integrar.
+relaxamento do gate. CI do lockfile corrigido acima passou. Build/checker da
+landing Windows passaram com permissao revisada apos restricao de caminho do
+sandbox, warning Tailwind existente e gzip JS 46061/153600 bytes. Auditoria
+completa atual tem 10 entradas dev/transitivas (7 high/3 moderate); nao limpa.
+Essa triagem nao autoriza downgrade Next/ESLint ou migracao Tailwind major.
+
+Vercel aceitou STRIPE_CHECKOUT_ENABLED=false e STRIPE_CONNECT_ENABLED=false
+para preview/production e readback de Node 22.x, mantendo SSO padrao.
+Configuracao de build, fonte privada, sem autoassign e duracao de 30s/gru1
+foi solicitada, mas campos nao foram retornados pelo conector para confirmar
+persistencia. Isso permanece gate, nao um teto financeiro comprovado.
 
 ## Tres alertas restantes corrigidos na feature, 5 de outubro
 
