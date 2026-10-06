@@ -19,7 +19,10 @@ Usa os SDKs oficiais ja instalados; nenhuma dependencia adicional.
 4. Aguardar pelo menos dois minutos desde updated_at para nao disputar com a
    chamada original. Copiar os IDs, nao URL, dados pessoais ou payload bruto.
 
-O comando aceita somente host HTTPS ref.supabase.co e chave sk_test_. Nao
+O comando aceita somente host HTTPS ref.supabase.co e chave sk_test_ ou
+rk_test_, pela mesma policy do aplicativo. Para inspecao restrita, conferir
+permissao de leitura de Checkout Sessions e dos recursos expandidos no Sandbox;
+ver [permissoes TEST](STRIPE_TEST_KEYS.md). Nao
 usa .env automaticamente, nao aceita host arbitrario, chave live, mocks por
 variavel de ambiente ou fallback local. CLI ajuda nao exige credenciais.
 Use Node com as dependencias da copia de develop instalada, preferencialmente

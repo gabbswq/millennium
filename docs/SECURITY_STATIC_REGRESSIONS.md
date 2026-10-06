@@ -31,7 +31,7 @@ de escape de JSON.stringify ou de exploracao de um provedor de producao.
 - [x] Capturas desktop/mobile inspecionadas, resultado sem overflow/markup.
 - [x] Build landing e checker reais: JS 116387 bytes, gzip 46061/153600 bytes.
 - [x] CI do codigo final e CodeQL da feature.
-- [ ] Integracao develop e alertas consultados explicitamente nessa ref.
+- [x] Integracao develop e alertas consultados explicitamente nessa ref.
 
 Termo normal do teste foi corrigido de claude (dois artigos existentes) para
 claude 4 (um artigo); conteudo real nao foi modificado para fazer o teste passar.
@@ -48,8 +48,16 @@ e [executor](https://github.com/gabbswq/millennium/actions/runs/37305524100):
 Build/checker landing confirmam gzip JS 46061/153600 bytes. CodeQL da mesma
 revisao: analise 1892950884, results_count=0, error/warning vazios.
 API alerts com ref=refs/heads/feature/security-static-regressions e state=open
-retornou lista vazia. Sem exclusoes/supressoes ou fechamento manual. Confirmar
-a ref develop apos integrar; nao inferir estado da branch main.
+retornou lista vazia. Sem exclusoes/supressoes ou fechamento manual.
+
+Integrado em develop 009d43a086d58c01c54a230618d0b99eaa6efa54. [CI integrado](https://github.com/gabbswq/millennium/actions/runs/37306091601)
+e [executor integrado](https://github.com/gabbswq/millennium/actions/runs/37306091587)
+aprovados. Logs recuperados em 6 de outubro: quatro bundle, zero SKIP, dez
+browser e gzip JS 46061/153600 bytes; executor anterior confirmou 45 casos.
+59 casos unicos, sem somar feature e integracao. Analise 1892972549 dessa
+revisao teve zero resultados. Consulta API explicita ref=refs/heads/develop
+em 6 de outubro confirma IDs 1-11 fixed. Nao inferir o estado da main nem
+considerar esse resultado homologacao de Auth/Stripe ou seguranca absoluta.
 
 Saida do Playwright isolada em test-results/security-search, nao no diretorio
 que compartilha outros caches. CLI agent-browser nao estava disponivel;
@@ -72,8 +80,10 @@ comparar a ref explicita apos analise e integrar somente develop.
 
 Auth/CAPTCHA reais, dois donos, Checkout/webhook Stripe TEST externos,
 WAF/limites financeiros e patch PostgreSQL continuam pendentes. Nenhuma
-dessas provas e substituida por consertar busca ou fixtures. Login Vercel ainda
-depende de Gabriel; nao ler/copiar credenciais nem alterar plano para contornar.
+dessas provas e substituida por consertar busca ou fixtures. O projeto Vercel
+foi criado pela conexao do app, mas ficou pausado por divergencia de alvo;
+ver [estado de hospedagem](VERCEL_HOMOLOGATION.md). A conta Sandbox Stripe
+ainda depende de Gabriel. Nao ler/copiar credenciais nem alterar planos.
 
 Fontes: [MDN textContent](https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent),
 [Node child_process](https://nodejs.org/docs/latest-v22.x/api/child_process.html),

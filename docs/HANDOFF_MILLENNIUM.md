@@ -2,6 +2,28 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Conta Stripe e hospedagem de teste, 6 de outubro
+
+Meta continua integral: login/Supabase/Checkout TEST na Vercel com controles
+de abuso/custo, sem plano pago ou pagamentos reais. Gabriel confirmou que
+ainda precisa configurar a conta Stripe; registro, login e MFA sao humanos.
+Nao interpretar testes locais como homologacao externa nem pedir segredos.
+
+Projeto millennium-test criado pela conexao nativa Vercel. Deploy da revisao
+009d43a0 terminou READY mas retornou target=production apesar de pedido Preview;
+cancelamento falhou e projeto foi pausado. Duas consultas HTTPS anonimas em
+6 de outubro comprovaram 503 DEPLOYMENT_PAUSED no URL unico e dominio principal.
+Sem bypass, credencial, plano pago ou alteracao main/preview. Proximo deploy
+devera omitir target conforme API oficial e confirmar target=null/protecao
+antes de homologar. [Estado e gates](VERCEL_HOMOLOGATION.md).
+
+Feature stripe-test-key-policy usa uma policy comum para sk_test_/rk_test_ no
+app e recuperacao; recusa live/publicavel/organizacional/malformada antes dos
+SDKs. Zero retries, timeouts, flags, correlacao e livemode preservados.
+Nao cria chave nem garante permissoes remotas; [inventario e guia](STRIPE_TEST_KEYS.md).
+Local: 74 testes dominio/Auth aprovados, incluindo sete casos novos; lint e
+typecheck e build aprovados. CI e integracao ainda precisam concluir neste checkpoint.
+
 ## Tres alertas restantes corrigidos na feature, 5 de outubro
 
 Feature security-static-regressions parte de develop 6055fb6d. Busca renderiza
@@ -18,10 +40,15 @@ caminho literal aprovados. Capturas inspecionadas. Build/checker landing passam
 e [executor](https://github.com/gabbswq/millennium/actions/runs/37305524100):
 59 casos unicos. CodeQL analise 1892950884: zero resultados, sem error/warning;
 consulta explicita da ref da feature/state=open retornou vazio. Sem supressao.
-Integracao e consulta da ref develop ainda pendentes.
+Integrado em develop 009d43a0. [CI seguranca integrado](https://github.com/gabbswq/millennium/actions/runs/37306091601)
+e [executor integrado](https://github.com/gabbswq/millennium/actions/runs/37306091587)
+aprovados. Logs de regressao recuperados em 6 de outubro: quatro bundle,
+dez browser, zero SKIP e gzip 46061/153600. Analise 1892972549: zero resultados;
+consulta API explicita da ref develop confirma IDs 1-11 fixed. 59 casos unicos.
 [Evidencia, limites e roteiro](SECURITY_STATIC_REGRESSIONS.md). Nao inferir
-zero alertas nem seguranca completa antes da consulta da ref final. Meta ativa;
-Vercel depende de login humano, main/preview e servicos remotos preservados.
+seguranca completa ou homologacao com esse resultado. Meta ativa; conta Stripe,
+configuracao segura e gates externos pendentes. Historico posterior de Vercel
+esta no checkpoint de 6 de outubro; main/preview permanecem preservadas.
 
 ## Limites Fastify integrados, 5 de outubro
 
