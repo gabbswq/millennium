@@ -115,6 +115,7 @@ Leia cada comando como uma ação separada: `dev` mantém um servidor aberto; `t
 | [`docs/CHATGPT_HANDOFF.md`](docs/CHATGPT_HANDOFF.md) | Passagem de contexto e documentos históricos |
 | [`TASKS.md`](TASKS.md) | Registro de tarefas do código experimental |
 | [`docs/PRODUCT_FACTORY_LANDING_SPEC.md`](docs/PRODUCT_FACTORY_LANDING_SPEC.md) | Escopo e critérios da landing pública |
+| [`docs/SECURITY_AND_QUALITY_SPEC.md`](docs/SECURITY_AND_QUALITY_SPEC.md) | Correções do scan e plano priorizado de segurança/qualidade |
 | [`landing/`](landing/) | Site estático, testes e instruções de execução |
 | [`src/`](src/) | Aplicação Next.js |
 | [`supabase/`](supabase/) | Migrations e Edge Functions |

@@ -479,9 +479,8 @@ async function triggerDiscordProvisioning(
     })
 
     if (!res.ok) {
-      const body = await res.text()
       console.error(
-        `[stripe-webhook] provision-discord returned ${res.status}: ${body}`,
+        `[stripe-webhook] provision-discord returned ${res.status}`,
       )
     } else {
       console.log(
