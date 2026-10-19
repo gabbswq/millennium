@@ -825,3 +825,26 @@ Este registro atualiza os resultados de build e Playwright acima:
   sessao, logout ou login por email concluidos.
 - Nenhuma chave foi impressa; nenhuma conta ou permissao foi manipulada pelo
   executor. Nao houve deploy, push, commit, pagamento ou mudanca remota.
+
+### Checkpoint GitHub e Preview, 19 de outubro de 2026
+
+- A captura do usuario mostra `/dashboard/checkout` local apos login Google; o
+  painel autenticado foi visto. Logout, relogin e login por email continuam
+  sem validacao.
+- No Windows: `npm run test:payments` 77/77, `npm run typecheck`,
+  `npm run lint` e `npm run build` passaram. O build gerou 20 rotas. No WSL,
+  a suite nao iniciou porque `node_modules` tem esbuild Windows; nao reinstalar
+  dependencias na pasta compartilhada.
+- Commit `73286e4c` (`feat(auth): complete Millennium Google sign-in flow`)
+  foi enviado a `feature/stripe-supabase-test-homologation`; a branch ficou
+  limpa e acompanha `origin`.
+- O push disparou Preview Vercel
+  `millennium-test-9q9in1sws-gabbswqs-projects.vercel.app`; estado BUILDING na
+  ultima consulta. A chave publica Supabase esta ausente no ambiente Preview.
+  A tentativa de adiciona-la pela integracao Vercel foi rejeitada; nao repetir
+  nem contornar. Proximo passo manual: cadastrar `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  somente no alvo Preview pelo painel Vercel, copiando o valor publishable de
+  `.env.local` sem compartilha-lo no chat. Entao concluir Google redirects para
+  o dominio Preview e validar login.
+- Checkout e Connect permanecem desligados. Nenhum pagamento, dominio proprio,
+  producao ou `main` foi alterado.

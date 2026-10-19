@@ -144,3 +144,33 @@ Copie a chave em Project Settings > API Keys. Nunca use `service_role`,
 abra `/auth/login` em `http://127.0.0.1:4313`, conclua o consentimento com a
 conta de teste e confirme callback, sessao, logout e novo login. Ate esse teste,
 trate OAuth como configurado no painel, mas ainda nao validado ponta a ponta.
+
+### Atualizacao apos login local e checkpoint GitHub, 19 de outubro de 2026
+
+O usuario concluiu a etapa Google e enviou captura da pagina
+`/dashboard/checkout` aberta em `http://127.0.0.1:4313`, com sessao autenticada.
+Isso confirma visualmente o retorno local ao painel. Logout, relogin, login por
+email e Google OAuth no dominio Vercel ainda nao foram testados.
+
+Na worktree Windows, `npm run test:payments` passou (77/77), `npm run typecheck`,
+`npm run lint` e `npm run build` passaram. O build gerou 20 rotas. No WSL, a
+suite falhou antes de executar testes porque a pasta `node_modules` compartilhada
+tem o binario Windows do esbuild; nao reinstale dependencias nessa pasta.
+
+O checkpoint `73286e4c` esta na branch
+`feature/stripe-supabase-test-homologation` no GitHub. O push iniciou um Preview
+Vercel para essa branch; na ultima consulta o estado ainda era `BUILDING`. A
+chave `NEXT_PUBLIC_SUPABASE_ANON_KEY` nao esta configurada para Preview. A
+tentativa de grava-la pela integracao Vercel foi rejeitada, sem alteracao.
+
+### Proximo passo para Preview
+
+No Vercel, abra o projeto `millennium-test` > **Settings > Environment Variables**
+e adicione `NEXT_PUBLIC_SUPABASE_ANON_KEY` no alvo **Preview**, usando o valor
+`sb_publishable_...` ja salvo localmente em `.env.local`. Nao use uma chave
+`sb_secret_...` ou `service_role`, e nao cole o valor no chat. Depois, confirme
+que o deployment Preview ficou `READY`. Para login Google no dominio de Preview,
+adicione a origem HTTPS do deployment em Google Cloud > Authorized JavaScript
+origins e inclua `https://<dominio-preview>/auth/callback` na allow-list do
+Supabase. O redirect URI do cliente Google continua sendo a callback do
+Supabase, nao a rota do app. Checkout e Stripe permanecem desativados.
