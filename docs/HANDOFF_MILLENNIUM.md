@@ -542,3 +542,286 @@ Os caminhos `gabbs-product-factory` e `C:\dev\fabrica` e os IDs internos `fabric
 Abrir `Abrir Millennium.cmd`, conferir o título Millennium/lead e o contexto Ubuntu, e seguir [PRIMEIRO_TURNO.md](PRIMEIRO_TURNO.md) com Gabriel. Começar por uma proposta pequena do exercício Diário de Turno, com dados fictícios; não construir o aplicativo inteiro antes de observar o primeiro uso.
 
 Durante a sessão, ensinar a diferença entre arquivo, alteração (diff) e commit. Pedir que Gabriel encontre um arquivo alterado e explique uma mudança. Registrar aqui o resultado real e a próxima ação, sem marcar os critérios de usabilidade como aprovados antecipadamente.
+
+## Checkpoint de Checkout TEST, 15 de outubro
+
+Gabriel retomou a meta integral: login/Supabase/Stripe Checkout de teste na Vercel,
+sem plano pago nem pagamento real. Não pedir que remova instruções personalizadas;
+elas não explicam os bloqueios de configuração abaixo.
+
+### Estado remoto confirmado
+
+- Supabase `pywotovmlxzwwpawpaew` estava INACTIVE; a restauração pelo conector foi
+  aceita. `get_project` confirmou `ACTIVE_HEALTHY`, região sa-east-1, organização
+  no plano Free. Nenhum upgrade de plano foi feito.
+- `list_migrations` confirmou as 12 migrations esperadas. `list_tables` confirmou
+  as tabelas públicas com RLS ativo.
+- O produto e preço TEST que Gabriel criou na Stripe foram sincronizados no
+  catálogo remoto como compra única, ativa, R$ 1,00 BRL. IDs locais:
+  produto `8399e814-c1fe-4398-bf67-3664005fdac7`, preço
+  `7992212f-49a5-4c05-b94c-4b00c02768da`. Stripe product/price IDs vieram de
+  Gabriel. Nenhuma sessão, cobrança ou transação foi criada.
+- Advisor de segurança continua com alertas intencionais de tabelas server-only
+  sem policy, visibilidade de schema GraphQL, helpers SECURITY DEFINER e patches
+  pendentes do Postgres 17.4.1.075. Não conceder policies amplas nem atualizar
+  Postgres sem plano de recuperação e autorização.
+- Vercel `millennium-test`, projeto `prj_mFFhIx2CM3D4ErZzmcNlpKjBLCxv`, é
+  acessível para metadata sem teamId. O deployment mais recente é READY, alvo
+  production, commit `009d43a086d58c01c54a230618d0b99eaa6efa54`; não foi criado
+  deployment novo. SSO protege os deployments e `web_fetch_vercel_url` retornou
+  403 no passo de bypass. Não tentar contornar a negação por outra via.
+- Metadata de env com decrypt=false mostrou somente `NEXT_PUBLIC_SUPABASE_URL`
+  (Preview) e `STRIPE_CHECKOUT_ENABLED=false` / `STRIPE_CONNECT_ENABLED=false`
+  (Preview e Production). Faltam NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY, STRIPE_CHECKOUT_WEBHOOK_SECRET e
+  MILLENNIUM_APP_ORIGIN. Não ler/descriptografar segredos nem alterar credenciais;
+  as flags continuam desligadas. A chave Stripe restrita sem permissões fica como
+  está por decisão de Gabriel e não foi utilizada.
+
+### Validação local deste checkpoint
+
+- `npm run test:payments`: 74 aprovados, zero falhas.
+- `npm run test:payments:sql`: 34 aprovados, zero falhas, seis SKIP explícitos
+  por testes concorrentes que exigem PostgreSQL nativo.
+- `npm run typecheck` e `npm run lint`: passaram.
+- `npm run build` no WSL/Linux: passou e gerou as rotas de login, Checkout e
+  webhooks. WSL usa Node 20.20.2 e emitiu aviso de que supabase-js requer Node 22
+  nas próximas versões; Vercel está configurada em Node 22.x.
+- O build no Windows falhou resolvendo imports da página de artigos, embora os
+  mesmos arquivos existam; build Linux passou. O servidor de desenvolvimento
+  Windows tentou instalar tipos automaticamente e não chegou a servir a rota;
+  processo foi encerrado. Worktree continuou limpo antes deste registro.
+- No WSL, `npm run dev -- --hostname 127.0.0.1 --port 4313` ficou pronto e as
+  rotas `/auth/login` e `/auth/signup` responderam HTTP 200; os formulários foram
+  inspecionados no navegador. Nenhum dado foi enviado e nenhuma conta foi criada.
+  O servidor desta sessão continua rodando em http://127.0.0.1:4313/auth/login;
+  URL/chave anon foram variáveis do processo, não arquivo.
+- Nenhum teste de login JWT real, email, CAPTCHA, Checkout Stripe ou webhook
+  foi completado. Typecheck/build e suites locais não comprovam runtime externo.
+
+### Branch e próxima ação
+
+Worktree `C:\Users\gabbs\Documents\ChatGPT\M\millennium` sincronizou develop
+sem fast-forward e abriu `feature/stripe-supabase-test-homologation`. Ainda sem
+alteração de código, commit, push, merge ou deploy. Siga AGENTS.md, que proíbe
+publicação/deploy pelo executor.
+
+Para destravar o teste web, Gabriel precisa autorizar a conexão Vercel ao time/
+deployment Millennium, adicionar as chaves necessárias somente nos campos
+seguros do Preview e configurar Supabase Auth URL/callbacks. Chave restrita da
+Stripe deve ter apenas Prices read e Checkout Sessions write, com dependências
+mínimas. Depois, verificar metadata sem descriptografar, ativar Checkout TEST
+somente após revisão, e testar login, sessão Checkout e webhook assinado. Não
+habilitar Connect nem pagamentos reais. Não repetir testes aprovados sem alteração.
+
+## Checkpoint de autenticacao local, 15 de outubro
+
+Escopo priorizado pelo usuario: entregar uma tela de login e preparar Google
+OAuth local; Vercel, Stripe e pagamentos ficam para fase posterior. Nenhum
+deploy, push, commit, mudanca remota ou acesso financeiro foi feito.
+
+### Estado do codigo
+
+- Branch confirmada: `feature/stripe-supabase-test-homologation`.
+- `/auth/login` foi redesenhada com identidade Millennium, layout responsivo,
+  email/senha, mostrar/ocultar senha, CAPTCHA existente, links de cadastro e
+  recuperacao, erros legiveis e estado sem configuracao Supabase.
+- OAuth Google usa `/auth/callback`, troca de codigo pela sessao Supabase e um
+  destino `next` validado para aceitar apenas caminho interno. Ha teste unitario
+  para destinos externos e entradas invalidas.
+- Instrucoes estao em `AUTH_GOOGLE_SETUP.md`; criterios e limites em
+  `SPEC_AUTHENTICATION.md`.
+- `next-env.d.ts` agora referencia `.next-e2e/types/routes.d.ts` e `tsconfig.json`
+  foi reformatado/ampliado para incluir tipos de `.next-e2e`. Esses diffs foram
+  encontrados no checkout e preservados, sem atribui-los como necessarios para
+  a implementacao de autenticacao.
+
+### Evidencia desta retomada
+
+- `npm run test:payments` no Windows: 77 aprovados, zero falhas, incluindo os
+  testes de redirecionamento OAuth.
+- `npm run typecheck` no WSL: concluiu com exit code 0.
+- Branch e `git status` foram consultados pelo WSL. A tentativa de `git diff
+  --check` no PowerShell nao foi valida porque `.git` e uma referencia WSL.
+- `npm run build` no Windows falhou com `EPERM` ao criar
+  `.next/types/app/api`. Nenhum cache foi apagado. A tentativa de testes no WSL
+  nao serve como evidencia: `node_modules` contem esbuild Windows e o runtime
+  Linux exige o binario Linux.
+- `npm run test:payments:e2e` ficou sem iniciar os casos por mais de dois minutos,
+  exibindo apenas avisos `NO_COLOR`/`FORCE_COLOR`; o processo foi interrompido.
+  O endpoint `127.0.0.1:4313` nao estava acessivel nesta sessao. Desktop e mobile
+  nao estao validados por E2E nesta retomada.
+- Um `npm run lint` anterior desta implementacao havia passado. Nova tentativa
+  ficou sem saida por mais de 90 segundos e foi interrompida; nao declarar um
+  resultado novo de lint com base nela.
+- O fluxo Google real segue sem validacao, pois depende de criar/configurar OAuth
+  Client no Google Cloud e habilitar o provedor/callback no Supabase. Nunca enviar
+  segredo pela conversa nem inserir segredo no codigo.
+
+### Proximas acoes
+
+1. Resolver o ambiente de build/teste Windows sem apagar `.next` ou modificar
+   dependencias indiscriminadamente; verificar ACL e processos antes de agir.
+2. Reexecutar lint, Playwright desktop/mobile e build, guardando exit codes e
+   evidencias; testar a pagina renderizada quando o loopback estiver disponivel.
+3. Orientar Gabriel, em passos curtos, a configurar Google OAuth no Google Cloud
+   e Supabase; depois testar consentimento, callback PKCE, sessao, logout e novo
+   login com conta de teste.
+4. Manter a meta ativa ate os testes automatizados e a validacao humana de login
+   por email/Google estarem comprovados. Checkout e pagamentos ficam fora desta
+   fase.
+
+### Revalidacao apos permissao local, 17 de outubro
+
+Este registro atualiza os resultados de build e Playwright acima:
+
+- Playwright foi executado no Windows com as fixtures locais em loopback, depois
+  de instalar o Chromium/Headless Shell correspondente ao Playwright 1.63.0.
+  `npm run test:payments:e2e`: 12/12 aprovados, incluindo seis casos desktop e
+  seis mobile. Os casos da UI verificam Google, links, mostrar/ocultar senha,
+  dimensao responsiva e carregamento da marca. As capturas
+  `test-results/login-auth-redesign-desktop.png` e `...-mobile.png` foram
+  inspecionadas. A autenticacao exercitada usa fixture local, nao credenciais
+  nem servico real do Supabase.
+- `npm run lint`: exit code 0.
+- `npm run build`: exit code 0; compilacao, verificacao de tipos e geracao de
+  20 paginas estaticas concluidas. O build documentado acima em seguida falhou
+  com EPERM foi uma tentativa sem permissao elevada; a execucao posterior
+  autorizada concluiu. `.next` e artefato gerado ignorado pelo Git.
+- `npm run test:payments`: 77/77 aprovados; `npm run typecheck`: exit code 0 na
+  validacao anterior desta retomada.
+- O fixture local foi encerrado pelo Playwright. Nenhum servidor permanente
+  ficou ativo ao fim da execucao.
+- Login real por email e OAuth Google ainda nao foi validado. Configuracao de
+  provedor/callback no painel Supabase e OAuth Client no Google Cloud continua
+  necessaria para a etapa humana. O teste visual, fixtures e build nao provam
+  autenticacao real.
+- `npm run dev -- --hostname 127.0.0.1 --port 4313` esta ativo para revisao
+  manual. A pagina abriu no navegador local, exibiu o aviso de Supabase nao
+  conectado e manteve login/Google desabilitados. As variaveis publicas
+  `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` nao estao
+  configuradas neste processo; nao foram lidas nem alteradas. O usuario pode
+  inspecionar a pagina em `http://127.0.0.1:4313/auth/login`.
+
+### Atualizacao final do fluxo OAuth, 17 de outubro
+
+- O app agora consulta `GET /auth/v1/settings` antes de iniciar Google OAuth.
+  Se o provedor estiver desligado, nao redireciona para a resposta JSON crua do
+  Supabase; mostra erro legivel no formulario. Falha de rede/verificacao tambem
+  interrompe o redirecionamento de forma explicita.
+- O E2E recebeu fixture publica de configuracao com Google desligado e assert
+  para permanencia na tela/erro. `npm run test:payments:e2e`: 14/14 passaram em
+  desktop e mobile. `npm run test:payments`: 77/77 passaram; lint, typecheck e
+  build de producao passaram depois desta alteracao.
+- Consulta somente leitura do endpoint Auth do projeto retornou HTTP 200,
+  `external.email=true` e `external.google=false`. Cliquei no botao Google com
+  essa configuracao: o navegador permaneceu em `/auth/login` e mostrou a
+  mensagem de provedor desativado. Nenhum email, senha, consentimento ou sessao
+  de usuario foi enviado/testado. Portanto Google OAuth real ainda depende de
+  configurar Client ID/Secret e ativar o provedor no painel; nao declare como
+  integrado ate completar consentimento e callback.
+- A documentacao agora inclui setup dos valores publicos no `.env.local`, que e
+  ignorado pelo Git, e proibe `service_role`/chaves secretas em variaveis
+  `NEXT_PUBLIC_*`. Para esta revisao, URL e chave `anon` publica ficaram apenas
+  no ambiente efemero do processo local, sem arquivo; o dev server continua
+  ativo em `http://127.0.0.1:4313/auth/login`.
+
+### Checkpoint para nova meta, 18 de outubro
+
+- O E2E foi ampliado com um caso de credenciais invalidas: a tela deve continuar
+  em `/auth/login`, mostrar erro legivel e nao colocar email/senha na URL.
+- O ultimo resultado Playwright em `test-results/.last-run.json` registra
+  `status: passed` e nenhuma falha. A suite atual tem 16 casos desktop/mobile.
+- `npm run typecheck` passou depois da inclusao desse caso. Os testes de unidade
+  (77), lint e build ja tinham passado antes; nao houve mudanca de codigo de
+  aplicacao desde esses resultados.
+- O dev server local nao estava ativo na verificacao deste checkpoint. Nao ha
+  `.env.local` presente; nao iniciar usando variaveis/segredos presumidos.
+- Os E2E de login usam fixtures locais. Nenhuma credencial real foi submetida.
+  O projeto Supabase consultado por HTTP indicou email habilitado e Google
+  desabilitado; o preflight apresenta erro legivel. OAuth Google real continua
+  pendente da configuracao manual do Client OAuth no Google Cloud e Supabase.
+- Retomar com `AGENTS.md`, `git status` e diff no checkout/branch correto. O
+  acesso WSL teve `Wsl/E_ACCESSDENIED` em uma tentativa recente; nao contornar
+  essa restricao. Preservar alteracoes. Sem deploy, push, commit, pagamento,
+  mudanca de credenciais ou plano.
+
+### Revalidacao local, 19 de outubro
+
+- `npm run test:payments`: 77/77 aprovados.
+- `npm run typecheck`: exit code 0.
+- `npm run lint`: exit code 0.
+- `npm run test:payments:e2e`: 16/16 aprovados, oito casos desktop e oito
+  mobile. Foi necessario permitir loopback para o servidor fixture local; sem
+  essa permissao o runner ficava aguardando o servidor e nenhum caso iniciava.
+- `npm run build`: exit code 0; Next.js compilou, validou tipos e gerou as 20
+  paginas estaticas/rotas.
+- A tentativa `git status --short --branch` pelo PowerShell nao funcionou:
+  `.git` aponta para um worktree em `/home/gabbs/...` no WSL e o acesso atual
+  nao foi disponibilizado. Branch e diffs permanecem por confirmar; nao editar
+  em cima de uma suposicao nem contornar o bloqueio.
+- Nenhuma credencial real foi usada. Fixture/E2E e build nao comprovam login
+  real por email nem Google OAuth; a configuracao Google externa continua
+  necessaria para validar consentimento, callback, sessao e logout.
+
+### Retomada de autenticacao, 19 de outubro de 2026
+
+- `wsl git -C /mnt/c/Users/gabbs/Documents/ChatGPT/M/millennium status --short
+  --branch` confirmou a branch `feature/stripe-supabase-test-homologation` e
+  alteracoes preexistentes em auth, testes e documentacao. Duas chamadas
+  paralelas de `git diff` foram recusadas com `Wsl/E_ACCESSDENIED`; nenhum
+  arquivo de implementacao foi alterado nesta retomada.
+- O usuario concluiu no Google Cloud e Supabase: cliente OAuth Web em modo de
+  teste, email de teste, origem `http://127.0.0.1:4313`, callback do Supabase,
+  provedor Google habilitado e allow-list com
+  `http://127.0.0.1:4313/auth/callback`. O segredo anteriormente exposto foi
+  redefinido pelo usuario e salvo diretamente no painel Supabase. Nenhum
+  segredo foi recebido ou usado pelo executor nesta retomada.
+- Nao ha `.env.local` nem variaveis Supabase no ambiente local. O endpoint de
+  login renderizou HTTP 200 com aviso de ambiente desconectado; a verificacao
+  Playwright em 1440px e 390px confirmou campos email/senha, botao Google visivel
+  mas desabilitado, aviso de desconexao e ausencia de overflow horizontal.
+  Esses resultados validam somente a tela sem configuracao, nao o OAuth real.
+- `npm run test:payments`: 77/77 aprovados; `npm run typecheck`: exit code 0;
+  `npm run lint`: exit code 0. `npm run build` passou com permissao de escrita
+  em `.next`; a tentativa dentro do sandbox falhou com `EPERM`.
+- O servidor local temporario foi encerrado. Nenhum login real, consentimento,
+  callback PKCE, sessao, logout ou login por email foi concluido nesta rodada.
+- Proximo passo: criar `.env.local` localmente com somente a URL Supabase e a
+  chave publica Publishable/anon, reiniciar o servidor e testar login Google e
+  email, callback, logout e novo login. Nunca solicitar o segredo Google ou
+  qualquer token no chat. Sem Stripe, Pix, KYC, deploy, push ou commit.
+
+### Revalidacao apos configuracao local, 19 de outubro de 2026
+
+- O usuario criou `.env.local`. Verificacao sem imprimir valores confirmou
+  somente `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`, URL do
+  projeto esperada e prefixo `sb_publishable_`. `.gitignore` ignora `.env.local`.
+- `npm run test:payments`: 77/77 aprovados. `npm run typecheck`: aprovado.
+  ESLint do arquivo alterado passou. O `npm run lint` completo desta rodada
+  demorou sem emitir resultado e foi interrompido; lint completo anterior consta
+  aprovado no checkpoint acima.
+- O primeiro build com ambiente configurado revelou que
+  `generateStaticParams` em `src/app/articles/[slug]/page.tsx` chamava o cliente
+  SSR e `cookies()` fora de um request. A consulta de slugs publicos agora usa
+  cliente Supabase sem cookies. O build seguinte passou, incluindo coleta de
+  dados e geracao das 20 rotas.
+- Next.js carregou `.env.local` e serviu `/auth/login` com HTTP 200. O clique
+  em “Continuar com Google” chegou a selecao de conta do Google. A URL observada
+  tinha callback Supabase e retorno local `/auth/callback?next=%2Fdashboard`,
+  com escopos email/perfil. Em seguida, o usuario enviou captura do painel
+  local `/dashboard/checkout` com sessao autenticada. Isso e evidencia visual
+  de retorno ao Millennium apos login Google local; nao comprova logout, novo
+  login, login por email ou comportamento na Vercel.
+- A execucao da suite pelo WSL falhou porque o `node_modules` compartilhado
+  contem o binario Windows do esbuild; a mesma suite passou no Windows. Nao
+  reinstalar dependencias no checkout compartilhado sem coordenar a plataforma.
+- Proximo passo: validar logout e novo login, registrar se email/senha ja tem
+  usuario de teste e configurar ambiente de Preview Vercel somente depois de
+  verificar as variaveis sem imprimir valores secretos. Se houver erro,
+  reportar somente a mensagem sem credenciais, codigos ou tokens.
+- A consulta terminal a `/auth/v1/settings` foi bloqueada pela rede do ambiente.
+  HTTP 200 do app, build e chegada ao seletor Google nao comprovam callback,
+  sessao, logout ou login por email concluidos.
+- Nenhuma chave foi impressa; nenhuma conta ou permissao foi manipulada pelo
+  executor. Nao houve deploy, push, commit, pagamento ou mudanca remota.

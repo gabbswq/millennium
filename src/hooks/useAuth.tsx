@@ -9,6 +9,7 @@ import {
 } from 'react'
 import type { Session, User, AuthError } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
+import { safeAuthNextPath } from '@/lib/auth/redirect'
 import type { LoginValues, SignUpValues } from '@/types/auth'
 import { captchaProtected } from '@/lib/auth/captcha'
 
@@ -22,7 +23,7 @@ interface AuthContextValue {
   loading: boolean
   signUp: (values: SignUpValues, captchaToken?: string) => Promise<{ error: AuthError | null }>
   signIn: (values: LoginValues, captchaToken?: string) => Promise<{ error: AuthError | null }>
-  signInWithProvider: (provider: 'google') => Promise<{ error: AuthError | null }>
+  signInWithProvider: (provider: 'google', nextPath?: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   resendVerification: (email: string, captchaToken?: string) => Promise<{ error: AuthError | null }>
   requestPasswordReset: (email: string, captchaToken?: string) => Promise<{ error: AuthError | null }>
@@ -123,11 +124,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
 
   const signInWithProvider = useCallback(
-    async (provider: 'google') => {
+    async (provider: 'google', nextPath = '/dashboard') => {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      if (!supabaseUrl || !anonKey) {
+        return { error: new Error('Supabase auth configuration is missing') }
+      }
+
+      try {
+        const settingsResponse = await fetch(`${supabaseUrl}/auth/v1/settings`, {
+          headers: { apikey: anonKey },
+          cache: 'no-store',
+        })
+        if (!settingsResponse.ok) {
+          return { error: new Error('Unable to verify OAuth provider configuration') }
+        }
+        const settings = await settingsResponse.json()
+        if (settings?.external?.[provider] !== true) {
+          return { error: new Error('OAuth provider not enabled') }
+        }
+      } catch {
+        return { error: new Error('Unable to verify OAuth provider configuration') }
+      }
+
+      const callbackUrl = new URL('/auth/callback', window.location.origin)
+      callbackUrl.searchParams.set('next', safeAuthNextPath(nextPath))
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: callbackUrl.toString(),
         },
       })
       return { error }

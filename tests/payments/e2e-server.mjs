@@ -44,6 +44,9 @@ const server = http.createServer(async (req, res) => {
     if (body.password !== 'FixturePass1!') { res.statusCode = 400; res.end(JSON.stringify({ msg: 'Invalid login credentials', error_code: 'invalid_credentials' })); return }
     res.end(JSON.stringify(session(body.email))); return
   }
+  if (url.pathname === '/auth/v1/settings') {
+    res.end(JSON.stringify({ external: { email: true, google: false } })); return
+  }
   if (url.pathname === '/auth/v1/user') {
     res.statusCode = user ? 200 : 401; res.end(JSON.stringify(user ?? { msg: 'Invalid token' })); return
   }

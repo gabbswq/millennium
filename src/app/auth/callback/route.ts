@@ -1,19 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { safeAuthNextPath } from '@/lib/auth/redirect'
 
 function getSafeRedirectUrl(request: NextRequest, redirectTo: string | null) {
-  const fallbackUrl = new URL('/dashboard', request.url)
-
-  if (!redirectTo) return fallbackUrl
-
-  try {
-    const parsedUrl = new URL(redirectTo, request.url)
-    if (parsedUrl.origin !== fallbackUrl.origin) return fallbackUrl
-
-    return parsedUrl
-  } catch {
-    return fallbackUrl
-  }
+  return new URL(safeAuthNextPath(redirectTo), request.url)
 }
 
 export async function GET(request: NextRequest) {
