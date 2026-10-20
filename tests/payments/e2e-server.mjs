@@ -7,7 +7,9 @@ const id = '00000000-0000-4000-8000-000000000001'
 const priceId = '10000000-0000-4000-8000-000000000001'
 const tokens = new Map()
 const captchaMode = process.argv.includes('--captcha')
-const appPort = captchaMode ? 4315 : 4313, authPort = captchaMode ? 4316 : 4314
+const configuredPort = Number(process.env.MILLENNIUM_E2E_PORT)
+const appPort = captchaMode ? 4315 : Number.isInteger(configuredPort) && configuredPort > 1024 && configuredPort < 65534 ? configuredPort : 4313
+const authPort = captchaMode ? 4316 : appPort + 1
 const usedCaptcha = new Set()
 function session(email) {
   const confirmed = email !== 'pending@example.test'
@@ -43,6 +45,9 @@ const server = http.createServer(async (req, res) => {
     }
     if (body.password !== 'FixturePass1!') { res.statusCode = 400; res.end(JSON.stringify({ msg: 'Invalid login credentials', error_code: 'invalid_credentials' })); return }
     res.end(JSON.stringify(session(body.email))); return
+  }
+  if (url.pathname === '/auth/v1/settings') {
+    res.end(JSON.stringify({ external: { email: true, google: false } })); return
   }
   if (url.pathname === '/auth/v1/user') {
     res.statusCode = user ? 200 : 401; res.end(JSON.stringify(user ?? { msg: 'Invalid token' })); return

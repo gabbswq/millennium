@@ -105,6 +105,8 @@ test('challenge fits narrow screens, adapts to resize and keeps keyboard focus v
   await expect(page.getByRole('button', { name: 'Concluir verificacao ficticia' })).toHaveAttribute('data-size', 'flexible')
   await page.getByLabel('Senha', { exact: true }).focus()
   await page.keyboard.press('Tab')
+  await expect(page.getByRole('button', { name: 'Mostrar senha' })).toBeFocused()
+  await page.keyboard.press('Tab')
   await expect(page.getByRole('button', { name: 'Concluir verificacao ficticia' })).toBeFocused()
   await page.screenshot({ path: `test-results/auth-captcha/desktop-${test.info().project.name}.png`, fullPage: true })
 })

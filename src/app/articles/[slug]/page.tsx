@@ -5,6 +5,7 @@ import { ptBR } from 'date-fns/locale'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import Image from 'next/image'
+import { createClient as createPublicSupabaseClient } from '@supabase/supabase-js'
 
 import { createClient } from '@/lib/supabase/server'
 import { AuthorCard } from '@/components/articles/AuthorCard'
@@ -112,7 +113,10 @@ async function getArticle(slug: string): Promise<ArticleDetail | null> {
 export async function generateStaticParams() {
   if (!hasSupabaseConfig()) return []
 
-  const supabase = await createClient()
+  const supabase = createPublicSupabaseClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
   const { data } = await supabase
     .from('public_articles')
     .select('slug')
