@@ -848,3 +848,50 @@ Este registro atualiza os resultados de build e Playwright acima:
   o dominio Preview e validar login.
 - Checkout e Connect permanecem desligados. Nenhum pagamento, dominio proprio,
   producao ou `main` foi alterado.
+
+### Autenticacao - retomada atual, 19 de outubro de 2026
+
+Estado verificado:
+
+- Checkout em `feature/stripe-supabase-test-homologation`; HEAD inicial
+  `b26fb3d3`. `.vscode/settings.json` aparece como nao rastreado, nao foi
+  editado e sera preservado fora do commit. `.env.local` existe; valores nao
+  foram inspecionados.
+- Implementacao presente: Supabase Auth para email/senha, Google OAuth via
+  `signInWithOAuth`, callback Next.js que troca code por sessao,
+  `safeAuthNextPath`, logout e erros localizados. Testes cobrem redirect seguro
+  e cenarios fixture; isso nao comprova conta remota.
+- A captura anterior do usuario mostra login Google local ate o painel; nao
+  prova login email/senha, logout/relogin nem validacao tecnica independente de
+  PKCE.
+- `npm run test:payments`: 77/77; `npm run typecheck`, `npm run lint` e
+  `npm run build` passaram. E2E isolado com
+  `MILLENNIUM_E2E_PORT=4381 npm run test:payments:e2e`: 16/16 desktop/mobile.
+  E2E usa fixture local e credenciais ficticias.
+- A primeira tentativa E2E na porta padrao falhou por `EADDRINUSE`; os testes
+  atingiram a instancia preexistente e 14 casos falharam. Esses resultados sao
+  invalidos para avaliar o app/fixture. O runner recebeu porta de app
+  configuravel e porta auth derivada; rerun isolado passou.
+- A instancia anterior em `127.0.0.1:4313` mostrou overlay Next de runtime:
+  `Cannot find module './611.js'`. Nesta retomada, o servidor iniciado pelo
+  agente anunciou `Ready`, mas Brave e requisicao local tiveram timeout
+  (`ERR_CONNECTION_TIMED_OUT`); o agente encerrou somente a instancia que
+  iniciou. A pagina local continua sem validacao funcional. Build aprovado e
+  servidor de desenvolvimento sao estados diferentes.
+
+Proximo passo:
+
+1. Fazer checkpoint e abrir PR de `feature/stripe-supabase-test-homologation`
+   para `develop`, sem merge/deploy e sem incluir `.vscode/settings.json` ou
+   `.env.local`.
+2. Antes de considerar autenticacao concluida ou aprovar merge, recuperar o
+   servidor local e abrir `/auth/login`; testar Google consent/callback, retorno
+   ao painel, **Sair** e novo login. Testar email/senha com conta de teste.
+   Nao enviar credenciais, segredos, tokens ou codigos.
+3. Registrar o resultado humano e investigar o timeout local; nao afirmar que
+   OAuth, logout/relogin ou email/senha real foram validados ate completar esses
+   passos.
+
+Nao alterar Stripe, Pix, KYC, pagamentos, deploy, `.env.local` ou
+`.vscode/settings.json` nesta fase. Depois do teste humano, atualizar estas
+notas com o resultado antes de decidir sobre PR.

@@ -174,3 +174,34 @@ adicione a origem HTTPS do deployment em Google Cloud > Authorized JavaScript
 origins e inclua `https://<dominio-preview>/auth/callback` na allow-list do
 Supabase. O redirect URI do cliente Google continua sendo a callback do
 Supabase, nao a rota do app. Checkout e Stripe permanecem desativados.
+
+### Retomada local, 19 de outubro de 2026
+
+- A branch correta foi confirmada. `.vscode/settings.json` aparece como nao
+  rastreado e e preservado fora das mudancas desta tarefa. `.env.local` existe,
+  mas seus valores nao foram lidos nem impressos nesta retomada.
+- `npm run test:payments`: 77/77 aprovados. `npm run typecheck`, `npm run lint`
+  e `npm run build` terminaram com exit code 0.
+- A primeira tentativa E2E colidiu com um servidor ja escutando em 4313 e nao e
+  evidencia valida dos fluxos. O runner passou a aceitar `MILLENNIUM_E2E_PORT`
+  para isolar a fixture. Em 4381/4382, `MILLENNIUM_E2E_PORT=4381 npm run
+  test:payments:e2e` passou 16/16, cobrindo desktop e mobile. A suite usa
+  credenciais/backend ficticios, nao Supabase real.
+- A captura enviada anteriormente pelo usuario e evidencia visual de login
+  Google local ate `/dashboard/checkout`. Nao houve nesta retomada novo
+  consentimento Google, callback PKCE real, login por email/senha ou logout e
+  relogin de uma conta real.
+- A porta 4313 ja estava ocupada. A instancia anterior mostrou erro de runtime
+  do Next: `Cannot find module './611.js'` em
+  `.next/server/webpack-runtime.js`. Nesta retomada, o servidor iniciado pelo
+  agente anunciou `Ready`, mas o Brave e uma requisicao local terminaram em
+  timeout (`ERR_CONNECTION_TIMED_OUT`). Essa instancia iniciada pelo agente foi
+  encerrada; nenhuma autenticacao real foi validada. Build aprovado nao
+  significa que o servidor de desenvolvimento esteja saudavel.
+
+Proximo passo manual depois de recuperar a pagina local: abrir
+`http://127.0.0.1:4313/auth/login`, concluir Google com a conta de teste e
+confirmar retorno ao painel; depois testar **Sair** e novo login. Para
+email/senha, usar somente uma conta de teste existente. Nao compartilhe senha,
+segredo, token nem codigo. O checkpoint/PR pode ser revisado sem declarar esses
+fluxos reais como validados.
