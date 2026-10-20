@@ -4,6 +4,22 @@ O codigo do Millennium usa Supabase Auth com `signInWithOAuth('google')`,
 retorno em `/auth/callback` e troca PKCE pelo cliente server-side. O segredo do
 Google nao e necessario no navegador; e guardado no provedor do Supabase.
 
+## Estado atual, 19 de outubro de 2026
+
+Google OAuth no Preview validado manualmente pelo usuario: login, sessao no
+painel, saida e nova entrada alternando duas contas reais. Duas capturas do
+painel e a confirmacao textual do usuario sustentam esse aceite. A primeira
+captura identifica o alias `millennium-test-git-develop-gabbswqs-projects.vercel.app`;
+ambas mostram contas diferentes autenticadas, sem reproduzir seus emails aqui.
+
+O retorno Google ao app foi validado funcionalmente pelo teste humano. O codigo
+conferido aponta para `/auth/callback` e usa `exchangeCodeForSession` (PKCE);
+nao foi coletada uma captura de rede nem a URL transitoria contendo o codigo.
+Logout e nova entrada sao confirmacoes humanas, nao execucoes automatizadas.
+Login por email/senha e testes separados de recarregamento ou acesso apos sair
+nao foram confirmados por esse relato. Os registros abaixo preservam o historico
+anterior; indicacoes antigas de OAuth pendente sao superadas por este aceite.
+
 ## Conectar o app local ao Supabase
 
 1. Na raiz do repo, crie `.env.local` (esse arquivo e ignorado pelo Git).
@@ -174,6 +190,69 @@ adicione a origem HTTPS do deployment em Google Cloud > Authorized JavaScript
 origins e inclua `https://<dominio-preview>/auth/callback` na allow-list do
 Supabase. O redirect URI do cliente Google continua sendo a callback do
 Supabase, nao a rota do app. Checkout e Stripe permanecem desativados.
+
+### Diagnostico do callback Preview, 19 de outubro de 2026
+
+O Preview testado usa o alias estavel
+`millennium-test-git-develop-gabbswqs-projects.vercel.app`. A captura enviada
+pelo usuario mostra o retorno Google terminando em `http://127.0.0.1:4313/`
+com um parametro `code`, em vez de chegar a `/auth/callback` no dominio
+Vercel. O valor do codigo nao deve ser registrado nem compartilhado.
+
+Uma captura posterior mostrava o Site URL local e uma unica Redirect URL,
+`http://127.0.0.1:4313/auth/callback`; nao havia entrada para o Preview Vercel.
+Na captura mais recente, a URL
+`https://millennium-test-git-develop-gabbswqs-projects.vercel.app/**` aparece
+na lista junto com a local (Total URLs: 2). O usuario nao alterou o Site URL.
+
+O codigo atual monta `redirectTo` com `window.location.origin` e a rota
+`/auth/callback`; a rota troca o code com `exchangeCodeForSession`. Assim, o
+retorno observado e consistente com o Supabase rejeitando o redirect do Preview
+por nao estar na allow-list e usando o Site URL local como fallback. O codigo
+nao foi alterado porque o callback ja e relativo ao dominio aberto.
+
+O padrao ja adicionado em Supabase > Auth > URL Configuration > Redirect URLs
+esta limitado ao alias de Preview do branch `develop`:
+
+```text
+https://millennium-test-git-develop-gabbswqs-projects.vercel.app/**
+```
+
+Manter o Site URL e a URI de redirect do cliente Google sem alteracoes nesta
+etapa. A URI do cliente Google continua sendo a callback Supabase
+`/auth/v1/callback`; o padrao acima e o retorno do usuario ao app Millennium.
+O usuario iniciou novos logins pelo alias Vercel apos esse ajuste e confirmou
+sucesso com duas contas, conforme o estado atual no inicio deste documento.
+
+A captura da tentativa anterior mostra `ERR_CONNECTION_REFUSED` nesse retorno local:
+naquele momento, nao havia servidor respondendo em `127.0.0.1:4313`, entao o
+callback nao foi processado nem a sessao foi estabelecida. O usuario havia
+encerrado o processo que ocupava a porta antes de tentar reiniciar o servidor.
+Isso e separado da configuracao OAuth. A allow-list do Preview foi adicionada
+depois dessa tentativa; o proximo teste deve iniciar pelo dominio Vercel, nao
+por `127.0.0.1`. Para testar localmente, manter o `npm run dev` rodando.
+
+#### Roteiro de validacao apos a inclusao da URL
+
+1. No navegador com acesso ao Preview, abrir
+   `https://millennium-test-git-develop-gabbswqs-projects.vercel.app/auth/login`
+   e iniciar um novo login em Continuar com Google. Nao reutilizar o retorno
+   antigo que contem `code`.
+2. Confirmar retorno ao mesmo dominio Vercel e painel com a conta autenticada.
+   A rota `/auth/callback` pode ser transitoria. O codigo atual envia o usuario
+   de `/dashboard` para `/dashboard/checkout`; visualizar essa pagina nao
+   exige acionar nenhuma funcionalidade de pagamento.
+3. Recarregar o painel, conferir que a sessao permanece e clicar em Sair no
+   final da pagina. Abrir `/dashboard` novamente: deve exigir login.
+4. Entrar novamente com Google e confirmar o painel autenticado.
+
+Na verificacao automatizada apos a inclusao, a requisicao HTTP ao Preview
+terminou em `Login - Vercel` (HTTP 200), sem os controles Millennium. O controle
+de navegador estava desativado no Work. O usuario realizou depois o teste real
+de entrada e saida com duas contas e confirmou sucesso. Recarregamento e abertura
+direta de `/dashboard` apos sair permanecem itens de regressao sem confirmacao
+individual nesse relato. Em novos testes, relatar apenas etapa e resultado ou
+mensagem de erro, nunca URL com `code`, senha ou token.
 
 ### Retomada local, 19 de outubro de 2026
 
