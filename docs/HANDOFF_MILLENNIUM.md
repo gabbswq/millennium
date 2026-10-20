@@ -2,6 +2,16 @@
 
 Registro de 1 de outubro de 2026. Revalidar antes de continuar.
 
+## Estado atual da autenticacao, 19 de outubro de 2026
+
+Google OAuth no Preview validado manualmente pelo usuario com duas contas reais:
+entrada no painel, saida e nova entrada alternando contas. As duas capturas
+enviadas mostram contas distintas; a primeira tambem identifica o dominio
+Preview. O relato confirma as saidas. O aceite funcional da meta esta atendido;
+o fechamento e os limites da evidencia estao registrados no final deste arquivo.
+As secoes anteriores a esse fechamento sao historicas e nao representam novas
+pendencias de configuracao do Google ou Supabase.
+
 ## Conta Stripe e hospedagem de teste, 6 de outubro
 
 Meta continua integral: login/Supabase/Checkout TEST na Vercel com controles
@@ -895,3 +905,93 @@ Proximo passo:
 Nao alterar Stripe, Pix, KYC, pagamentos, deploy, `.env.local` ou
 `.vscode/settings.json` nesta fase. Depois do teste humano, atualizar estas
 notas com o resultado antes de decidir sobre PR.
+
+### OAuth no Preview Vercel, investigacao de 19 de outubro de 2026
+
+- Branch local confirmada como `feature/stripe-supabase-test-homologation`,
+  HEAD `a48940c0`; working tree limpa antes desta atualizacao. `.env.local` nao
+  foi lido.
+- O usuario criou manualmente um novo Preview do commit de merge `1e65e38`
+  para `develop` e confirmou que a tela de login abriu e que o fluxo chegou ao
+  seletor/conta Google. A captura seguinte mostra retorno a
+  `http://127.0.0.1:4313/` com `code`, em vez da rota de callback Vercel. O
+  codigo temporario foi omitido deste registro.
+- Inspecao atual de `src/hooks/useAuth.tsx`: `redirectTo` e construido como
+  `/auth/callback` sobre `window.location.origin`, preservando o `next` interno.
+  `src/app/auth/callback/route.ts` troca o code via
+  `exchangeCodeForSession` e redireciona usando `safeAuthNextPath`. Portanto,
+  nao ha evidencia que justifique alterar o codigo do callback.
+- A captura inicial do painel Supabase mostrava Site URL
+  `http://127.0.0.1:4313` e apenas uma Redirect URL,
+  `http://127.0.0.1:4313/auth/callback`; o alias Vercel estava ausente.
+  Na captura mais recente, `https://millennium-test-git-develop-gabbswqs-projects.vercel.app/**`
+  aparece na lista junto com a URL local (Total URLs: 2). Site URL permaneceu
+  inalterado. O usuario concluiu a inclusao do Preview na allow-list.
+- O passo seguinte foi repetir Google OAuth pelo alias Preview. O teste humano
+  foi concluido conforme o fechamento abaixo; o callback Google
+  `/auth/v1/callback` permaneceu inalterado.
+- `npm run test:payments` nesta retomada passou 77/77, incluindo os testes de
+  redirect interno seguro. Essa suite nao simula Google real nem comprova PKCE
+  remoto. Nao houve nesta retomada lint, typecheck, build, deploy, push ou
+  alteracao de ambiente remoto pelo agente.
+- A Vercel MCP e a automacao do navegador nao estavam disponiveis para leitura
+  direta do estado remoto. O estado do Preview READY e o consentimento/retorno
+  foram observados somente nos screenshots e relato do usuario. Nenhuma
+  credencial ou valor de `.env.local` foi acessado.
+- Teste HTTP/headless adicional ao alias do Preview respondeu HTTP 200, mas
+  apresentou a pagina de acesso da Vercel (`Login - Vercel`), sem os controles
+  de login Millennium. A protecao do Preview impede validar o DOM publico sem
+  a sessao autorizada do usuario; nenhum bypass foi criado ou usado.
+- A captura da tentativa anterior mostra o navegador tentando abrir
+  `http://127.0.0.1:4313/` e recebendo `ERR_CONNECTION_REFUSED`; portanto, o
+  code nao chegou a uma rota ativa e nao houve troca PKCE nem sessao validada.
+  O processo que ocupava a porta havia sido encerrado antes da tentativa local.
+  A URL raiz local, em vez de `/auth/callback` no Preview, continua consistente
+  com fallback do Supabase para o Site URL quando o redirect do Preview nao e
+  permitido; a captura posterior da allow-list confirma que o alias Preview
+  estava ausente naquele momento.
+- O GET publico de `/auth/v1/settings` sem credencial retornou HTTP 401, sem
+  revelar configuracao do provedor; nenhuma chave foi lida para repetir a
+  consulta. A automacao de navegador permanece desativada nas configuracoes do
+  Work, entao a sessao autenticada do usuario no Preview nao esta acessivel ao
+  agente.
+- Com a allow-list atualizada, o usuario realizou o teste real no navegador
+  com acesso ao Preview; resultado registrado no fechamento abaixo.
+- Revalidacao apos a inclusao da URL: GET de `/auth/login` no alias Preview
+  terminou em `Login - Vercel`, HTTP 200, sem o botao Google do Millennium.
+  A ferramenta de navegador confirmou que o controle local continua
+  desativado no Work. Essa resposta nao comprova funcionamento do app.
+- Inspecao de `src/app/dashboard/layout.tsx` confirmou Sair no final do painel;
+  `/dashboard` exige usuario autenticado e direciona a `/dashboard/checkout`.
+  O roteiro atualizado em `AUTH_GOOGLE_SETUP.md` inclui login, recarregamento,
+  logout, tentativa de reabrir `/dashboard` e novo login. Esses passos estavam
+  pendentes antes do retorno do usuario. Codigo e testes nao foram alterados;
+  nao e necessario repetir a suite local para esta atualizacao documental.
+
+### Fechamento humano do Google OAuth Preview, 19 de outubro de 2026
+
+- O usuario confirmou que entrou e saiu com duas contas Google diferentes.
+  As duas capturas anexadas a essa confirmacao mostram o painel Millennium
+  com identificacoes de conta distintas; a primeira mostra o alias Preview
+  na barra de endereco. Emails, imagens originais e credenciais nao foram
+  copiados para o repositorio.
+- Aceite: retorno Google ao Preview com sessao no painel, logout e nova
+  entrada alternando contas validados manualmente. O codigo conferido monta
+  `/auth/callback`, executa `exchangeCodeForSession` e protege `/dashboard`
+  por usuario autenticado. O teste humano comprova o resultado funcional;
+  nao houve inspecao de trafego PKCE nem registro da URL transitoria com code.
+- A inclusao do alias Preview na allow-list Supabase foi seguida por sucesso
+  no teste humano, resolvendo o retorno indevido ao Site URL local observado
+  anteriormente. Nao foi necessaria alteracao do codigo de autenticacao.
+- Limites: o relato nao valida email/senha, recarregamento isolado, acesso
+  direto ao painel apos logout ou Production. Esses itens nao devem ser
+  apresentados como testes executados neste fechamento. As fixtures e suites
+  automaticas anteriores continuam separadas desta validacao humana.
+- Branch preservada: `feature/stripe-supabase-test-homologation`. Somente
+  `docs/AUTH_GOOGLE_SETUP.md` e `docs/HANDOFF_MILLENNIUM.md` foram atualizados
+  nesta tarefa documental. `.env.local` nao foi lido; `.vscode/settings.json`
+  permaneceu intacto. Nenhum commit, push ou deploy foi realizado.
+- A meta de validacao funcional do Google OAuth no Preview esta atendida com
+  evidencia humana. As atualizacoes documentais ficam locais ate autorizacao
+  para checkpoint; nao iniciar outra etapa ou alterar pagamentos/Production
+  automaticamente a partir desse aceite.
