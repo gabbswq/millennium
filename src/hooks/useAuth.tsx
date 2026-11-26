@@ -7,7 +7,8 @@ import {
   useEffect,
   useState,
 } from 'react'
-import type { Session, User, AuthError } from '@supabase/supabase-js'
+import { AuthError } from '@supabase/supabase-js'
+import type { Session, User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import { safeAuthNextPath } from '@/lib/auth/redirect'
 import type { LoginValues, SignUpValues } from '@/types/auth'
@@ -22,6 +23,7 @@ interface AuthContextValue {
   /** True while the initial session is being fetched from Supabase. */
   loading: boolean
   signUp: (values: SignUpValues, captchaToken?: string) => Promise<{ error: AuthError | null }>
+  verifyEmailCode: (email: string, token: string) => Promise<{ error: AuthError | null }>
   signIn: (values: LoginValues, captchaToken?: string) => Promise<{ error: AuthError | null }>
   signInWithProvider: (provider: 'google', nextPath?: string) => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
@@ -112,6 +114,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [supabase],
   )
 
+  const verifyEmailCode = useCallback(async (email: string, token: string) => {
+    try {
+      const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
+      return { error }
+    } catch {
+      return { error: new AuthError('auth_request_unavailable', 503) }
+    }
+  }, [supabase])
+
   const signIn = useCallback(
     async ({ email, password }: LoginValues, captchaToken?: string) => {
       return captchaProtected(captchaToken, options => supabase.auth.signInWithPassword({
@@ -188,6 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         loading,
         signUp,
+        verifyEmailCode,
         signIn,
         signInWithProvider,
         signOut,

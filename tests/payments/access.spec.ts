@@ -45,6 +45,36 @@ test('invalid email credentials stay on login and show a localized error', async
   expect(page.url()).not.toContain('invalid@example.test')
   expect(page.url()).not.toContain('WrongFixturePass1!')
 })
+
+test('email signup can verify the six-digit confirmation code and establish a session', async ({ page }) => {
+  await page.goto('/auth/signup')
+  await page.getByLabel('Nome', { exact: true }).fill('Usuario de teste')
+  await page.getByLabel('Email', { exact: true }).fill('signup@example.test')
+  await page.getByLabel('Senha', { exact: true }).fill('FixturePass1!')
+  await page.getByRole('button', { name: 'Criar conta', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Verifique seu email' })).toBeVisible()
+  await page.getByLabel('Código de confirmação').fill('123456')
+  await page.getByRole('button', { name: 'Confirmar email' }).click()
+  await expect(page).toHaveURL(/\/dashboard\/checkout$/)
+})
+
+test('invalid email confirmation code stays visible and offers a retry', async ({ page }) => {
+  await page.goto('/auth/signup')
+  await page.getByLabel('Nome', { exact: true }).fill('Usuario de teste')
+  await page.getByLabel('Email', { exact: true }).fill('signup@example.test')
+  await page.getByLabel('Senha', { exact: true }).fill('FixturePass1!')
+  await page.getByRole('button', { name: 'Criar conta', exact: true }).click()
+  await page.getByLabel('Código de confirmação').fill('000000')
+  await page.getByRole('button', { name: 'Confirmar email' }).click()
+  await expect(page.locator('p[role="alert"]')).toHaveText('O link ou código expirou ou é inválido. Solicite um novo.')
+  await expect(page.getByRole('heading', { name: 'Verifique seu email' })).toBeVisible()
+})
+
+test('confirmation callback reports failure instead of silently returning to login', async ({ page }) => {
+  await page.goto('/auth/callback?error=access_denied&error_code=otp_expired')
+  await expect(page).toHaveURL(/\/auth\/login\?auth_error=confirmation_expired$/)
+  await expect(page.locator('.auth-error')).toContainText('A confirmação expirou ou já foi usada')
+})
 test('pending email cannot open Checkout or sellers', async ({ page }) => {
   await login(page, 'pending@example.test')
   await expect(page).toHaveURL(/\/auth\/verify$/)

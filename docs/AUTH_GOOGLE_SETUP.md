@@ -284,3 +284,33 @@ confirmar retorno ao painel; depois testar **Sair** e novo login. Para
 email/senha, usar somente uma conta de teste existente. Nao compartilhe senha,
 segredo, token nem codigo. O checkpoint/PR pode ser revisado sem declarar esses
 fluxos reais como validados.
+
+### Cadastro por email: falha reportada e correcao local, 21 de outubro de 2026
+
+O usuario relatou que o email de confirmacao chega, mas o codigo/link nao
+autentica e o cadastro nao termina. O relato nao incluiu email, codigo, senha,
+URL temporaria ou mensagem de erro, e nao foi repetido pelo agente contra o
+Supabase real.
+
+O fluxo local agora oferece entrada do OTP de seis digitos via
+`verifyOtp({ email, token, type: 'email' })`, alem do link de confirmacao. O
+callback tambem mostra uma mensagem localizada em vez de retornar ao login em
+silencio quando a troca PKCE falha ou o link expirou. A implementacao segue as
+[instrucoes oficiais de OTP por email do Supabase](https://supabase.com/docs/guides/auth/auth-email-templates).
+
+Validacao local: testes E2E com backend Supabase ficticio passaram 22/22 em
+desktop e mobile, incluindo OTP valido/invalido e erro do callback. Typecheck e
+lint passaram. Isto nao prova entrega/verificacao do OTP no projeto Supabase
+remoto. As alteracoes ainda nao foram publicadas; o reteste manual depende de
+um Preview atualizado. O alias por branch do Preview redirecionou para o SSO da
+Vercel nesta retomada; o dominio publico `millennium-test.vercel.app` respondeu
+HTTP 200, mas nao foi confirmado como o Preview da branch.
+
+Reteste humano local: em 21 de outubro, depois do roteiro local de cadastro,
+confirmacao do email, login por email/senha, logout e tentativa de acesso a
+`/dashboard` apos sair, o usuario confirmou "Deu certo". Registrar como sucesso
+reportado para esse roteiro no localhost; o agente nao observou a sessao nem
+acessou a caixa de email. Nenhum email, senha, codigo ou token foi solicitado
+ou registrado. Isso nao valida Preview ou Production da Vercel. O reteste
+remoto continua pendente ate um Preview atualizado ser acessivel e testado. O
+resultado Google validado em 19 de outubro e separado deste fluxo.

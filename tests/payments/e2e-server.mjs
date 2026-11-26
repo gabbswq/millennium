@@ -26,6 +26,14 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') { res.end(); return }
   const url = new URL(req.url, `http://127.0.0.1:${authPort}`)
   const user = tokens.get(req.headers.authorization?.replace(/^Bearer /i, ''))
+  if (url.pathname === '/auth/v1/verify' && req.method === 'POST') {
+    let raw = ''; for await (const chunk of req) raw += chunk
+    const body = JSON.parse(raw)
+    if (body.type !== 'email' || body.token !== '123456') {
+      res.statusCode = 403; res.end(JSON.stringify({ msg: 'Token has expired or is invalid', error_code: 'otp_expired' })); return
+    }
+    res.end(JSON.stringify(session(body.email))); return
+  }
   if (['/auth/v1/token', '/auth/v1/signup', '/auth/v1/recover', '/auth/v1/resend'].includes(url.pathname)) {
     let raw = ''; for await (const chunk of req) raw += chunk
     const body = JSON.parse(raw)
