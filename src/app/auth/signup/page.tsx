@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/card'
 
 export default function SignUpPage() {
-  const { signUp, resendVerification } = useAuth()
+  const { signUp, verifyEmailCode, resendVerification } = useAuth()
   const captcha = useAuthCaptcha()
   const router = useRouter()
 
@@ -39,6 +39,8 @@ export default function SignUpPage() {
   const [pendingEmail, setPendingEmail]   = useState<string | null>(null)
   const [resendSent, setResendSent]       = useState(false)
   const [resending, setResending] = useState(false)
+  const [verificationCode, setVerificationCode] = useState('')
+  const [verifyingCode, setVerifyingCode] = useState(false)
   const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
   const form = useForm<SignUpValues>({
@@ -79,6 +81,20 @@ export default function SignUpPage() {
     setResendSent(true)
   }
 
+  async function handleVerifyCode() {
+    if (!pendingEmail || verificationCode.length !== 6 || verifyingCode) return
+    setVerifyingCode(true)
+    setServerError(null)
+    const { error } = await verifyEmailCode(pendingEmail, verificationCode)
+    setVerifyingCode(false)
+    if (error) {
+      setServerError(mapAuthError(error.message, error.code))
+      return
+    }
+    router.replace('/dashboard')
+    router.refresh()
+  }
+
   // ── Waiting for email confirmation ────────────────────────────────────────
   if (pendingEmail) {
     return (
@@ -87,12 +103,28 @@ export default function SignUpPage() {
           <CardHeader>
             <CardTitle>Verifique seu email</CardTitle>
             <CardDescription>
-              Enviamos um link de confirmação para{' '}
-              <strong>{pendingEmail}</strong>. Clique no link para ativar sua
-              conta.
+              Enviamos uma confirmação para <strong>{pendingEmail}</strong>.
+              Abra o link ou informe o código de 6 dígitos para ativar sua conta.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
+            <form className="space-y-3" onSubmit={event => { event.preventDefault(); void handleVerifyCode() }}>
+              <label className="sr-only" htmlFor="signup-verification-code">Código de confirmação</label>
+              <Input
+                id="signup-verification-code"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                placeholder="Código de 6 dígitos"
+                value={verificationCode}
+                onChange={event => setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+                aria-label="Código de confirmação"
+              />
+              <Button type="submit" className="w-full" disabled={verificationCode.length !== 6 || verifyingCode}>
+                {verifyingCode ? 'Confirmando…' : 'Confirmar email'}
+              </Button>
+            </form>
             {!resendSent && <AuthCaptcha control={captcha} />}
             {serverError && <p role="alert" className="text-sm text-destructive">{serverError}</p>}
             {resendSent ? (

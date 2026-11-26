@@ -20,5 +20,14 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(new URL('/auth/login', request.url))
+  const loginUrl = new URL('/auth/login', request.url)
+  const errorCode = requestUrl.searchParams.get('error_code')
+  const description = requestUrl.searchParams.get('error_description')?.toLowerCase() ?? ''
+  loginUrl.searchParams.set(
+    'auth_error',
+    errorCode === 'otp_expired' || description.includes('expired')
+      ? 'confirmation_expired'
+      : 'confirmation_failed',
+  )
+  return NextResponse.redirect(loginUrl)
 }

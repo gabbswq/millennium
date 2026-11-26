@@ -68,7 +68,7 @@ const ERROR_MAP: Record<string, string> = {
   'For security purposes, you can only request this once every 60 seconds':
     'Aguarde 60 segundos antes de reenviar.',
   'Token has expired or is invalid':
-    'O link expirou ou é inválido. Solicite um novo.',
+    'O link ou código expirou ou é inválido. Solicite um novo.',
 }
 
 export function mapAuthError(message: string, code?: string): string {

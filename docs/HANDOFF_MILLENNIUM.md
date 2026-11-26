@@ -995,3 +995,27 @@ notas com o resultado antes de decidir sobre PR.
   evidencia humana. As atualizacoes documentais ficam locais ate autorizacao
   para checkpoint; nao iniciar outra etapa ou alterar pagamentos/Production
   automaticamente a partir desse aceite.
+
+### Retomada de cadastro por email, 21 de outubro de 2026
+
+- O usuario relatou que recebe o email de confirmacao, mas o codigo/link nao
+  autentica e o cadastro nao termina. Nenhum identificador, codigo, senha ou
+  URL com credencial foi solicitado ou registrado.
+- Implementacao local: a tela de cadastro aceita OTP de seis digitos via
+  `verifyOtp` (`type: 'email'`) e o callback apresenta erro localizado se o
+  code PKCE falhar ou o link estiver expirado. Link existente segue disponivel.
+- Evidencia automatizada: `npm run test:payments:e2e` passou 22/22 (desktop e
+  mobile), cobrindo codigo valido/invalido e callback com falha; `npm run
+  typecheck`, `npm run lint` e `git diff --check` passaram. A E2E usa backend
+  ficticio e nao comprova Supabase real.
+- Estado remoto: o alias Preview por branch redirecionou para SSO da Vercel.
+  `millennium-test.vercel.app/auth/login` respondeu HTTP 200, mas nao foi
+  confirmado como Preview da branch. Nenhum segredo foi lido. Nenhuma
+  alteracao foi implantada ou publicada; o agente nao validou Supabase real.
+- Atualizacao posterior em 21 de outubro: apos instrucoes para testar a tela
+  local de cadastro, confirmacao por email, login por email/senha, logout e
+  acesso direto a `/dashboard` apos sair, o usuario confirmou "Deu certo".
+  Registrar como relato humano de sucesso desse roteiro no localhost, sem
+  observacao independente pelo agente e sem registrar email, senha, codigo ou
+  token. Isso nao confirma Preview ou Production; o reteste remoto segue
+  pendente.

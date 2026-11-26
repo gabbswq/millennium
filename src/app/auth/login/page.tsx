@@ -60,6 +60,12 @@ function LoginPageContent() {
   const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
   const hintEmail = params.get('email') ?? ''
   const hintExists = params.get('hint') === 'exists'
+  const callbackError = params.get('auth_error')
+  const callbackMessage = callbackError === 'confirmation_expired'
+    ? 'A confirmação expirou ou já foi usada. Cadastre-se novamente ou solicite outro email.'
+    : callbackError === 'confirmation_failed'
+      ? 'Não foi possível confirmar seu email. Tente usar o código recebido ou solicite outro email.'
+      : null
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -187,7 +193,7 @@ function LoginPageContent() {
                 />
 
                 <AuthCaptcha control={captcha} />
-                {serverError && <p className="auth-error" role="alert">{serverError}</p>}
+                {(serverError || callbackMessage) && <p className="auth-error" role="alert">{serverError || callbackMessage}</p>}
 
                 <Button
                   type="submit"
